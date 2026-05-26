@@ -4,11 +4,37 @@ import { SHEET_CONFIG } from '../config';
 const OrderContext = createContext(null);
 const SCRIPT_URL = SHEET_CONFIG.SCRIPT_URL;
 
-// GETリクエスト（パラメータをURLに乗せる）
-async function apiGet(params) {
-  const query = new URLSearchParams(params).toString();
-  const res = await fetch(`${SCRIPT_URL}?${query}`);
-  return res.json();
+// JSONP リクエスト（CORSを回避）
+function jsonp(params) {
+  return new Promise((resolve, reject) => {
+    const callbackName = 'cb_' + Math.random().toString(36).slice(2);
+    const query = new URLSearchParams({ ...params, callback: callbackName }).toString();
+    const script = document.createElement('script');
+
+    const timer = setTimeout(() => {
+      cleanup();
+      reject(new Error('timeout'));
+    }, 10000);
+
+    function cleanup() {
+      clearTimeout(timer);
+      delete window[callbackName];
+      if (script.parentNode) script.parentNode.removeChild(script);
+    }
+
+    window[callbackName] = (data) => {
+      cleanup();
+      resolve(data);
+    };
+
+    script.onerror = () => {
+      cleanup();
+      reject(new Error('script error'));
+    };
+
+    script.src = `${SCRIPT_URL}?${query}`;
+    document.head.appendChild(script);
+  });
 }
 
 export function OrderProvider({ children }) {
@@ -19,8 +45,8 @@ export function OrderProvider({ children }) {
   const fetchAll = useCallback(async () => {
     try {
       const [tables, hist] = await Promise.all([
-        apiGet({ action: 'getTables' }),
-        apiGet({ action: 'getHistory' }),
+        jsonp({ action: 'getTables' }),
+        jsonp({ action: 'getHistory' }),
       ]);
       setTableOrders(tables || {});
       setHistory(Array.isArray(hist) ? hist : []);
@@ -37,10 +63,10 @@ export function OrderProvider({ children }) {
     return () => clearInterval(timer);
   }, [fetchAll]);
 
-  // 注文追加（GETで送信）
+  // 注文追加
   const addOrder = async (tableNum, items, pax = 1) => {
     const startTime = tableOrders[tableNum]?.startTime || new Date().toISOString();
-    await apiGet({
+    await jsonp({
       action: 'addOrder',
       tableNum,
       pax,
@@ -50,9 +76,9 @@ export function OrderProvider({ children }) {
     await fetchAll();
   };
 
-  // 会計（GETで送信）
+  // 会計
   const checkout = async (tableNum) => {
-    await apiGet({ action: 'checkout', tableNum });
+    await jsonp({ action: 'checkout', tableNum });
     await fetchAll();
   };
 
