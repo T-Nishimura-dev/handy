@@ -31,12 +31,27 @@
 
 .table-btn.active {
   border-color: #d4922a;
-  background: rgba(212,146,42,0.08);
+  background: rgba(212,146,42,0.2);
+  box-shadow: 0 0 0 2px #d4922a;
 }
 
 .table-btn.occupied {
   border-color: #c94040;
   background: rgba(201,64,64,0.08);
+}
+
+.table-btn.occupied.active {
+  border-color: #d4922a;
+  background: rgba(212,146,42,0.2);
+  box-shadow: 0 0 0 2px #d4922a;
+}
+
+.table-btn.occupied.active .table-num {
+  color: #e8b45a;
+}
+
+.table-btn.occupied.active .table-label {
+  color: #e8b45a;
 }
 
 .table-dot {
