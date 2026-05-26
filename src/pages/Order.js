@@ -10,6 +10,7 @@ export default function Order() {
   const [cart, setCart] = useState({});
   const [pax, setPax] = useState(2);
   const [customPrice, setCustomPrice] = useState('');
+  const [customQty, setCustomQty] = useState(1);
   const [sending, setSending] = useState(false);
   const [sent, setSent] = useState(false);
 
@@ -105,7 +106,7 @@ export default function Order() {
           item.custom ? (
             // その他：金額自由入力
             <div key={item.id} className="menu-item custom-item">
-              <div className="menu-info">
+              <div className="menu-info" style={{width:'100%'}}>
                 <div className="menu-name">その他</div>
                 <div className="custom-price-row">
                   <span className="yen-label">¥</span>
@@ -116,14 +117,20 @@ export default function Order() {
                     value={customPrice}
                     onChange={e => setCustomPrice(e.target.value)}
                   />
+                  <div className="qty-ctrl" style={{gap:8}}>
+                    <div className="qty-btn minus" onClick={() => setCustomQty(q => Math.max(1, q - 1))}>−</div>
+                    <div className="qty-num">{customQty}</div>
+                    <div className="qty-btn plus" onClick={() => setCustomQty(q => q + 1)}>＋</div>
+                  </div>
                   <div
                     className="custom-add-btn"
                     onClick={() => {
                       const price = parseInt(customPrice);
                       if (!price || price <= 0) return;
                       const customItem = { ...item, price, id: `custom_${Date.now()}`, name: `その他(¥${price})` };
-                      setCart(prev => ({ ...prev, [customItem.id]: { ...customItem, qty: 1 } }));
+                      setCart(prev => ({ ...prev, [customItem.id]: { ...customItem, qty: customQty } }));
                       setCustomPrice('');
+                      setCustomQty(1);
                     }}
                   >追加</div>
                 </div>
