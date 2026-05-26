@@ -1,0 +1,136 @@
+.sales-page {
+  padding: 14px;
+  padding-bottom: 80px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.today-card {
+  background: #242018;
+  border: 1px solid rgba(212,146,42,0.3);
+  border-radius: 14px;
+  padding: 16px;
+}
+
+.today-label {
+  font-size: 10px;
+  letter-spacing: 0.15em;
+  color: #d4922a;
+  margin-bottom: 12px;
+  text-transform: uppercase;
+}
+
+.today-main {
+  display: flex;
+  align-items: flex-end;
+  gap: 4px;
+  margin-bottom: 14px;
+}
+
+.today-yen { font-size: 16px; color: #e8b45a; margin-bottom: 6px; }
+
+.today-amount {
+  font-family: 'Zen Kaku Gothic New', sans-serif;
+  font-weight: 900;
+  font-size: 38px;
+  color: #e8b45a;
+  line-height: 1;
+}
+
+.today-stats {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 8px;
+}
+
+.stat-box {
+  background: rgba(255,255,255,0.03);
+  border-radius: 8px;
+  padding: 8px;
+  text-align: center;
+}
+
+.stat-num {
+  font-family: 'Zen Kaku Gothic New', sans-serif;
+  font-weight: 900;
+  font-size: 16px;
+  color: #f0ead8;
+}
+
+.stat-label { font-size: 9px; color: #9a9080; margin-top: 2px; }
+
+.section-title {
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  color: #9a9080;
+  margin-bottom: 12px;
+  text-transform: uppercase;
+}
+
+.ranking-section, .history-section {
+  background: #242018;
+  border: 1px solid #2e2a22;
+  border-radius: 12px;
+  padding: 14px;
+}
+
+.rank-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 0;
+  border-bottom: 1px solid rgba(46,42,34,0.6);
+}
+
+.rank-item:last-child { border-bottom: none; }
+
+.rank-medal { font-size: 16px; width: 20px; text-align: center; }
+
+.rank-bar-wrap { flex: 1; }
+.rank-name { font-size: 12px; color: #f0ead8; margin-bottom: 4px; }
+
+.rank-bar-bg {
+  height: 4px;
+  background: #2e2a22;
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.rank-bar-fill {
+  height: 100%;
+  background: #d4922a;
+  border-radius: 2px;
+  transition: width 0.5s;
+}
+
+.rank-right { text-align: right; }
+.rank-sales { font-size: 12px; font-weight: 700; color: #e8b45a; }
+.rank-count { font-size: 10px; color: #9a9080; margin-top: 1px; }
+
+.history-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 9px 0;
+  border-bottom: 1px solid rgba(46,42,34,0.6);
+}
+
+.history-item:last-child { border-bottom: none; }
+
+.history-table { font-size: 13px; font-weight: 500; color: #f0ead8; }
+.history-time { font-size: 10px; color: #9a9080; margin-top: 1px; }
+.history-right { text-align: right; }
+.history-amount { font-size: 14px; font-weight: 700; color: #e8b45a; }
+
+.history-badge {
+  display: inline-block;
+  font-size: 9px;
+  padding: 1px 6px;
+  border-radius: 4px;
+  background: rgba(74,156,106,0.2);
+  color: #4a9c6a;
+  margin-top: 2px;
+}
+
+.no-history { font-size: 12px; color: #9a9080; text-align: center; padding: 16px 0; }

@@ -1,0 +1,17 @@
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;700&family=Zen+Kaku+Gothic+New:wght@400;700;900&display=swap');
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  -webkit-tap-highlight-color: transparent;
+}
+
+body {
+  font-family: 'Noto Sans JP', sans-serif;
+  background: #0f0e0c;
+  color: #f0ead8;
+  -webkit-font-smoothing: antialiased;
+}
+
+::-webkit-scrollbar { display: none; }

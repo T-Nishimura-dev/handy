@@ -1,0 +1,127 @@
+.ticket-page {
+  padding: 14px;
+  padding-bottom: 80px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.ticket-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 60vh;
+  color: #9a9080;
+}
+
+.empty-icon { font-size: 48px; margin-bottom: 16px; }
+.empty-text { font-size: 14px; letter-spacing: 0.05em; }
+
+.table-card {
+  background: #242018;
+  border: 1px solid #2e2a22;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 14px;
+  border-bottom: 1px solid #2e2a22;
+  background: rgba(255,255,255,0.02);
+}
+
+.card-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.table-badge {
+  font-family: 'Zen Kaku Gothic New', sans-serif;
+  font-weight: 900;
+  font-size: 20px;
+  color: #e8b45a;
+  width: 36px;
+  height: 36px;
+  border: 1.5px solid #d4922a;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.card-pax { font-size: 12px; font-weight: 500; color: #f0ead8; margin-bottom: 2px; }
+.card-time { font-size: 10px; color: #9a9080; }
+
+.card-total { text-align: right; }
+.card-total-num {
+  font-family: 'Zen Kaku Gothic New', sans-serif;
+  font-weight: 900;
+  font-size: 18px;
+  color: #e8b45a;
+}
+.card-total-label { font-size: 9px; color: #9a9080; margin-top: 1px; }
+
+.card-body { padding: 10px 14px; }
+
+.order-row {
+  display: flex;
+  align-items: center;
+  padding: 5px 0;
+  border-bottom: 1px solid rgba(46,42,34,0.5);
+  font-size: 12px;
+}
+
+.order-row:last-child { border-bottom: none; }
+.total-row { border-top: 1px solid #2e2a22; padding-top: 8px; margin-top: 4px; }
+
+.order-name { color: #f0ead8; flex: 1; }
+.order-qty { color: #9a9080; margin: 0 8px; }
+.order-price { color: #e8b45a; font-weight: 500; }
+
+.card-actions {
+  padding: 10px 14px;
+  border-top: 1px solid #2e2a22;
+}
+
+.btn-checkout {
+  width: 100%;
+  padding: 10px;
+  border-radius: 8px;
+  background: #4a9c6a;
+  color: #fff;
+  font-size: 13px;
+  font-weight: 700;
+  text-align: center;
+  cursor: pointer;
+  letter-spacing: 0.05em;
+}
+
+.summary-bar {
+  background: #1a1815;
+  border-top: 1px solid #2e2a22;
+  padding: 10px 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  position: fixed;
+  bottom: 56px;
+  left: 0;
+  right: 0;
+}
+
+.summary-item { text-align: center; }
+
+.summary-num {
+  font-family: 'Zen Kaku Gothic New', sans-serif;
+  font-weight: 900;
+  font-size: 18px;
+  color: #e8b45a;
+}
+
+.summary-label { font-size: 9px; color: #9a9080; letter-spacing: 0.08em; margin-top: 1px; }
+.summary-divider { width: 1px; height: 30px; background: #2e2a22; }
