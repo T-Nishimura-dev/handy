@@ -1,5 +1,5 @@
 import React from 'react';
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { HashRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './hooks/useAuth';
 import { OrderProvider } from './hooks/useOrders';
 import Layout from './components/Layout';
@@ -15,7 +15,7 @@ function AppRoutes() {
 
   return (
     <OrderProvider>
-      <BrowserRouter>
+      <HashRouter>
         <Layout>
           <Routes>
             <Route path="/" element={<Order />} />
@@ -24,7 +24,7 @@ function AppRoutes() {
             <Route path="*" element={<Navigate to="/" />} />
           </Routes>
         </Layout>
-      </BrowserRouter>
+      </HashRouter>
     </OrderProvider>
   );
 }
