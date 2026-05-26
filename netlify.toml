@@ -4,8 +4,8 @@
   functions = "netlify/functions"
 
 [[redirects]]
-  from = "/api/*"
-  to = "/.netlify/functions/:splat"
+  from = "/api/gas-proxy"
+  to = "/.netlify/functions/gas-proxy"
   status = 200
 
 [[redirects]]
