@@ -19,7 +19,7 @@ export default function Login() {
   return (
     <div className="login-wrap">
       <div className="login-box">
-        <div className="login-title">炉端 さくら</div>
+        <div className="login-title">居酒屋 なりちゃん</div>
         <div className="login-sub">ORDER MANAGEMENT</div>
         <div className="login-form">
           <input

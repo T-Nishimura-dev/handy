@@ -1,89 +1,65 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
+import { SHEET_CONFIG } from '../config';
 
 const OrderContext = createContext(null);
 
-// localStorage からデータを読み込む
-const loadOrders = () => {
-  try {
-    const data = localStorage.getItem('handy_orders');
-    return data ? JSON.parse(data) : {};
-  } catch { return {}; }
-};
+const SCRIPT_URL = SHEET_CONFIG.SCRIPT_URL;
 
-const loadHistory = () => {
-  try {
-    const data = localStorage.getItem('handy_history');
-    return data ? JSON.parse(data) : [];
-  } catch { return []; }
-};
+async function apiGet(action) {
+  const res = await fetch(`${SCRIPT_URL}?action=${action}`);
+  return res.json();
+}
+
+async function apiPost(data) {
+  const res = await fetch(SCRIPT_URL, {
+    method: 'POST',
+    body: JSON.stringify(data),
+  });
+  return res.json();
+}
 
 export function OrderProvider({ children }) {
-  // tableOrders: { [tableNum]: { items: [{id, name, price, qty}], startTime, pax } }
-  const [tableOrders, setTableOrders] = useState(loadOrders);
-  const [history, setHistory] = useState(loadHistory);
+  const [tableOrders, setTableOrders] = useState({});
+  const [history, setHistory] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-  // 変更のたびにlocalStorageに保存
+  // 初回・定期読み込み
+  const fetchAll = useCallback(async () => {
+    try {
+      const [tables, hist] = await Promise.all([
+        apiGet('getTables'),
+        apiGet('getHistory'),
+      ]);
+      setTableOrders(tables);
+      setHistory(Array.isArray(hist) ? hist : []);
+    } catch (e) {
+      console.error('fetch error', e);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
   useEffect(() => {
-    localStorage.setItem('handy_orders', JSON.stringify(tableOrders));
-  }, [tableOrders]);
+    fetchAll();
+    // 30秒ごとに自動更新（複数端末同期）
+    const timer = setInterval(fetchAll, 30000);
+    return () => clearInterval(timer);
+  }, [fetchAll]);
 
-  useEffect(() => {
-    localStorage.setItem('handy_history', JSON.stringify(history));
-  }, [history]);
-
-  // 注文を追加・更新
-  const addOrder = (tableNum, items, pax = 1) => {
-    setTableOrders(prev => {
-      const existing = prev[tableNum];
-      if (existing) {
-        // 既存テーブルへ追加
-        const merged = [...existing.items];
-        items.forEach(newItem => {
-          const idx = merged.findIndex(i => i.id === newItem.id);
-          if (idx >= 0) {
-            merged[idx] = { ...merged[idx], qty: merged[idx].qty + newItem.qty };
-          } else {
-            merged.push(newItem);
-          }
-        });
-        return { ...prev, [tableNum]: { ...existing, items: merged } };
-      } else {
-        // 新規テーブル
-        return {
-          ...prev,
-          [tableNum]: {
-            items,
-            pax,
-            startTime: new Date().toISOString(),
-          }
-        };
-      }
-    });
+  // 注文追加
+  const addOrder = async (tableNum, items, pax = 1) => {
+    const startTime = tableOrders[tableNum]?.startTime || new Date().toISOString();
+    await apiPost({ action: 'addOrder', tableNum, items, pax, startTime });
+    await fetchAll();
   };
 
-  // 会計処理
-  const checkout = (tableNum) => {
-    const order = tableOrders[tableNum];
-    if (!order) return;
-    const total = order.items.reduce((sum, i) => sum + i.price * i.qty, 0);
-    const record = {
-      id: Date.now(),
-      tableNum,
-      pax: order.pax,
-      items: order.items,
-      total,
-      startTime: order.startTime,
-      checkoutTime: new Date().toISOString(),
-    };
-    setHistory(prev => [record, ...prev]);
-    setTableOrders(prev => {
-      const next = { ...prev };
-      delete next[tableNum];
-      return next;
-    });
+  // 会計
+  const checkout = async (tableNum) => {
+    await apiPost({ action: 'checkout', tableNum });
+    await fetchAll();
   };
 
-  // テーブルの合計金額
+  // テーブル合計
   const getTotal = (tableNum) => {
     const order = tableOrders[tableNum];
     if (!order) return 0;
@@ -91,7 +67,7 @@ export function OrderProvider({ children }) {
   };
 
   return (
-    <OrderContext.Provider value={{ tableOrders, history, addOrder, checkout, getTotal }}>
+    <OrderContext.Provider value={{ tableOrders, history, addOrder, checkout, getTotal, loading, fetchAll }}>
       {children}
     </OrderContext.Provider>
   );

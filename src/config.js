@@ -3,11 +3,11 @@
 export const SHEET_CONFIG = {
   SPREADSHEET_ID: 'YOUR_SPREADSHEET_ID',
   API_KEY: 'YOUR_API_KEY',
-  SCRIPT_URL: 'YOUR_APPS_SCRIPT_URL', // Google Apps Script のデプロイURL
+  SCRIPT_URL: 'https://script.google.com/macros/s/AKfycbwrInt26LWZVVmLN_gEtZz1tNHpYfj5UPLwVp-mtlJZFnnaXlx1bvoBUndhjmEp590L/exec',
 };
 
 // パスワード認証
-export const APP_PASSWORD = 'sakura2024'; // ← 好きなパスワードに変更してください
+export const APP_PASSWORD = 'narichan'; // ← 好きなパスワードに変更してください
 
 // テーブル設定
 export const TABLE_COUNT = 9;

@@ -1,5 +1,6 @@
 import React from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
+import { useOrders } from '../hooks/useOrders';
 import './Layout.css';
 
 const tabs = [
@@ -11,18 +12,30 @@ const tabs = [
 export default function Layout({ children }) {
   const location = useLocation();
   const navigate = useNavigate();
+  const { loading, fetchAll } = useOrders();
 
   return (
     <div className="layout">
       <div className="layout-header">
         <div>
-          <div className="layout-title">炉端 さくら</div>
+          <div className="layout-title">居酒屋 なりちゃん</div>
           <div className="layout-sub">ORDER MANAGEMENT</div>
         </div>
-        <div className="layout-time">
-          {new Date().toLocaleTimeString('ja-JP', { hour: '2-digit', minute: '2-digit' })}
+        <div className="layout-right">
+          <div className="layout-time">
+            {new Date().toLocaleTimeString('ja-JP', { hour: '2-digit', minute: '2-digit' })}
+          </div>
+          <div
+            className={`sync-btn ${loading ? 'syncing' : ''}`}
+            onClick={fetchAll}
+            title="データを更新"
+          >
+            {loading ? '⟳' : '↺'}
+          </div>
         </div>
       </div>
+
+      {loading && <div className="loading-bar" />}
 
       <div className="layout-content">
         {children}

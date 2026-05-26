@@ -34,11 +34,47 @@
   margin-top: 2px;
 }
 
+.layout-right {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
 .layout-time {
   font-size: 16px;
   color: #f0ead8;
   font-family: 'Zen Kaku Gothic New', sans-serif;
   font-weight: 700;
+}
+
+.sync-btn {
+  font-size: 20px;
+  color: #9a9080;
+  cursor: pointer;
+  user-select: none;
+  transition: transform 0.3s;
+}
+
+.sync-btn.syncing {
+  color: #d4922a;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.loading-bar {
+  height: 2px;
+  background: linear-gradient(to right, #d4922a, #e8b45a, #d4922a);
+  background-size: 200% 100%;
+  animation: shimmer 1s linear infinite;
+}
+
+@keyframes shimmer {
+  from { background-position: 200% 0; }
+  to { background-position: -200% 0; }
 }
 
 .layout-content {
