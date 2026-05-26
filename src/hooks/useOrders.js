@@ -31,7 +31,7 @@ async function gasWrite(params) {
   const query = new URLSearchParams({ ...params, callback: 'cb' }).toString();
   await fetch(`${GAS_URL}?${query}`, { mode: 'no-cors' });
   // レスポンスは取れないので少し待ってからfetchAllで反映確認
-  await new Promise(r => setTimeout(r, 2000));
+  await new Promise(r => setTimeout(r, 1000));
 }
 
 // localStorage操作

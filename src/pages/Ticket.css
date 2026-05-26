@@ -99,6 +99,14 @@
   text-align: center;
   cursor: pointer;
   letter-spacing: 0.05em;
+  transition: background 0.2s;
+}
+
+.btn-checkout.processing {
+  background: #2e2a22;
+  color: #9a9080;
+  cursor: default;
+  animation: spin-text 1s linear infinite;
 }
 
 .summary-bar {

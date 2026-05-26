@@ -9,6 +9,7 @@ export default function Order() {
   const [category, setCategory] = useState('すべて');
   const [cart, setCart] = useState({});
   const [pax, setPax] = useState(2);
+  const [sending, setSending] = useState(false);
   const [sent, setSent] = useState(false);
 
   const filteredMenu = category === 'すべて'
@@ -30,13 +31,18 @@ export default function Order() {
   const cartTotal = Object.values(cart).reduce((sum, i) => sum + i.price * i.qty, 0);
   const cartCount = Object.values(cart).reduce((sum, i) => sum + i.qty, 0);
 
-  const handleSend = () => {
-    if (!selectedTable || cartCount === 0) return;
-    const items = Object.values(cart);
-    addOrder(selectedTable, items, pax);
-    setCart({});
-    setSent(true);
-    setTimeout(() => setSent(false), 2000);
+  const handleSend = async () => {
+    if (!selectedTable || cartCount === 0 || sending) return;
+    setSending(true);
+    try {
+      const items = Object.values(cart);
+      await addOrder(selectedTable, items, pax);
+      setCart({});
+      setSent(true);
+      setTimeout(() => setSent(false), 2000);
+    } finally {
+      setSending(false);
+    }
   };
 
   return (
@@ -118,6 +124,8 @@ export default function Order() {
       <div className="order-bar">
         {sent ? (
           <div className="order-btn sent">✓ 注文を送信しました</div>
+        ) : sending ? (
+          <div className="order-btn disabled">⟳ 送信中...</div>
         ) : (
           <div
             className={`order-btn ${(!selectedTable || cartCount === 0) ? 'disabled' : ''}`}

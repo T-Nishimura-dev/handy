@@ -1,6 +1,5 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useOrders } from '../hooks/useOrders';
-import { MENU_ITEMS } from '../config';
 import './Ticket.css';
 
 function elapsed(startTime) {
@@ -11,9 +10,20 @@ function elapsed(startTime) {
 
 export default function Ticket() {
   const { tableOrders, checkout, getTotal } = useOrders();
-  const tables = Object.keys(tableOrders).map(Number).sort((a, b) => a - b);
+  const [checkingOut, setCheckingOut] = useState(null); // 会計処理中のテーブル番号
 
+  const tables = Object.keys(tableOrders).map(Number).sort((a, b) => a - b);
   const totalSales = Object.keys(tableOrders).reduce((sum, t) => sum + getTotal(Number(t)), 0);
+
+  const handleCheckout = async (tableNum) => {
+    if (checkingOut) return;
+    setCheckingOut(tableNum);
+    try {
+      await checkout(tableNum);
+    } finally {
+      setCheckingOut(null);
+    }
+  };
 
   if (tables.length === 0) {
     return (
@@ -29,6 +39,8 @@ export default function Ticket() {
       {tables.map(tableNum => {
         const order = tableOrders[tableNum];
         const total = getTotal(tableNum);
+        const isProcessing = checkingOut === tableNum;
+
         return (
           <div key={tableNum} className="table-card">
             <div className="card-header">
@@ -61,15 +73,17 @@ export default function Ticket() {
             </div>
 
             <div className="card-actions">
-              <div className="btn-checkout" onClick={() => checkout(tableNum)}>
-                ✓ 会計する
+              <div
+                className={`btn-checkout ${isProcessing ? 'processing' : ''}`}
+                onClick={() => !isProcessing && handleCheckout(tableNum)}
+              >
+                {isProcessing ? '⟳ 処理中...' : '✓ 会計する'}
               </div>
             </div>
           </div>
         );
       })}
 
-      {/* 下部サマリ */}
       <div className="summary-bar">
         <div className="summary-item">
           <div className="summary-num">{tables.length}</div>
