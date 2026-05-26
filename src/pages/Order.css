@@ -221,6 +221,49 @@
   color: #f0ead8;
 }
 
+.custom-item {
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.custom-price-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 6px;
+}
+
+.yen-label {
+  font-size: 14px;
+  color: #e8b45a;
+  font-weight: 700;
+}
+
+.custom-price-input {
+  width: 120px;
+  padding: 6px 10px;
+  background: #1a1815;
+  border: 1px solid #2e2a22;
+  border-radius: 6px;
+  color: #f0ead8;
+  font-size: 14px;
+  outline: none;
+}
+
+.custom-price-input:focus {
+  border-color: #d4922a;
+}
+
+.custom-add-btn {
+  padding: 6px 14px;
+  background: #d4922a;
+  color: #0f0e0c;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
 .order-bar {
   position: fixed;
   bottom: 60px;

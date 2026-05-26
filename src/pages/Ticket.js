@@ -66,6 +66,16 @@ export default function Ticket() {
                 </div>
               ))}
               <div className="order-row total-row">
+                <span style={{ color: '#9a9080', fontSize: 11 }}>税抜合計</span>
+                <span style={{ flex: 1 }} />
+                <span style={{ color: '#9a9080' }}>¥{Math.floor(total / 1.1).toLocaleString()}</span>
+              </div>
+              <div className="order-row total-row">
+                <span style={{ color: '#9a9080', fontSize: 11 }}>消費税（10%）</span>
+                <span style={{ flex: 1 }} />
+                <span style={{ color: '#9a9080' }}>¥{(total - Math.floor(total / 1.1)).toLocaleString()}</span>
+              </div>
+              <div className="order-row total-row">
                 <span style={{ color: '#9a9080', fontSize: 11 }}>税込合計</span>
                 <span style={{ flex: 1 }} />
                 <span style={{ fontWeight: 700, color: '#f0ead8' }}>¥{total.toLocaleString()}</span>

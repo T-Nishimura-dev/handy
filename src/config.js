@@ -103,6 +103,8 @@ export const MENU_ITEMS = [
   // 甘味
   { id: 77, category: '甘味',          name: 'バニラアイス',          price: 300, tag: '' },
   { id: 78, category: '甘味',          name: 'シャーベット',          price: 300, tag: '' },
+  // その他（金額自由入力）
+  { id: 99, category: 'その他', name: 'その他', price: 0, tag: '', custom: true },
 ];
 
-export const CATEGORIES = ['すべて', 'ビール', 'ウィスキー', 'サワー', 'カクテル', 'その他お酒', 'ソフトドリンク', '一品料理', '揚げ物', 'ご飯物', '麺類', '甘味'];
+export const CATEGORIES = ['すべて', 'ビール', 'ウィスキー', 'サワー', 'カクテル', 'その他お酒', 'ソフトドリンク', '一品料理', '揚げ物', 'ご飯物', '麺類', '甘味', 'その他'];

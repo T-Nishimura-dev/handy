@@ -9,6 +9,7 @@ export default function Order() {
   const [category, setCategory] = useState('すべて');
   const [cart, setCart] = useState({});
   const [pax, setPax] = useState(2);
+  const [customPrice, setCustomPrice] = useState('');
   const [sending, setSending] = useState(false);
   const [sent, setSent] = useState(false);
 
@@ -101,20 +102,49 @@ export default function Order() {
       {/* メニュー */}
       <div className="menu-list">
         {filteredMenu.map(item => (
-          <div key={item.id} className="menu-item">
-            <div className="menu-info">
-              <div className="menu-name">
-                {item.name}
-                {item.tag && <span className="menu-tag">{item.tag}</span>}
+          item.custom ? (
+            // その他：金額自由入力
+            <div key={item.id} className="menu-item custom-item">
+              <div className="menu-info">
+                <div className="menu-name">その他</div>
+                <div className="custom-price-row">
+                  <span className="yen-label">¥</span>
+                  <input
+                    type="number"
+                    className="custom-price-input"
+                    placeholder="金額を入力"
+                    value={customPrice}
+                    onChange={e => setCustomPrice(e.target.value)}
+                  />
+                  <div
+                    className="custom-add-btn"
+                    onClick={() => {
+                      const price = parseInt(customPrice);
+                      if (!price || price <= 0) return;
+                      const customItem = { ...item, price, id: `custom_${Date.now()}`, name: `その他(¥${price})` };
+                      setCart(prev => ({ ...prev, [customItem.id]: { ...customItem, qty: 1 } }));
+                      setCustomPrice('');
+                    }}
+                  >追加</div>
+                </div>
               </div>
-              <div className="menu-price">¥{item.price.toLocaleString()}</div>
             </div>
-            <div className="qty-ctrl">
-              <div className="qty-btn minus" onClick={() => updateCart(item, -1)}>−</div>
-              <div className="qty-num">{cart[item.id]?.qty || 0}</div>
-              <div className="qty-btn plus" onClick={() => updateCart(item, 1)}>＋</div>
+          ) : (
+            <div key={item.id} className="menu-item">
+              <div className="menu-info">
+                <div className="menu-name">
+                  {item.name}
+                  {item.tag && <span className="menu-tag">{item.tag}</span>}
+                </div>
+                <div className="menu-price">¥{item.price.toLocaleString()}</div>
+              </div>
+              <div className="qty-ctrl">
+                <div className="qty-btn minus" onClick={() => updateCart(item, -1)}>−</div>
+                <div className="qty-num">{cart[item.id]?.qty || 0}</div>
+                <div className="qty-btn plus" onClick={() => updateCart(item, 1)}>＋</div>
+              </div>
             </div>
-          </div>
+          )
         ))}
       </div>
 
