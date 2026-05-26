@@ -112,9 +112,9 @@
 .summary-bar {
   background: #1a1815;
   border-top: 1px solid #2e2a22;
-  padding: 10px 16px;
+  padding: 8px 10px;
   display: flex;
-  justify-content: space-between;
+  justify-content: space-around;
   align-items: center;
   position: fixed;
   bottom: 56px;
@@ -122,14 +122,15 @@
   right: 0;
 }
 
-.summary-item { text-align: center; }
+.summary-item { text-align: center; flex: 1; }
 
 .summary-num {
   font-family: 'Zen Kaku Gothic New', sans-serif;
   font-weight: 900;
-  font-size: 18px;
+  font-size: 15px;
   color: #e8b45a;
+  white-space: nowrap;
 }
 
-.summary-label { font-size: 9px; color: #9a9080; letter-spacing: 0.08em; margin-top: 1px; }
-.summary-divider { width: 1px; height: 30px; background: #2e2a22; }
+.summary-label { font-size: 8px; color: #9a9080; letter-spacing: 0.05em; margin-top: 2px; }
+.summary-divider { width: 1px; height: 24px; background: #2e2a22; flex-shrink: 0; }

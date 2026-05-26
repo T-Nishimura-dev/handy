@@ -1,4 +1,8 @@
 [build]
-  command = "npm run build && cp public/_redirects build/_redirects"
+  command = "npm run build"
   publish = "build"
-  functions = "netlify/functions"
+
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200

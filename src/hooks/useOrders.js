@@ -5,7 +5,7 @@ const OrderContext = createContext(null);
 const IS_LOCAL = window.location.hostname === 'localhost';
 const GAS_URL = SHEET_CONFIG.SCRIPT_URL;
 
-// 読み込み用JSONP
+// JSONP読み込み
 function jsonpGet(params) {
   return new Promise((resolve, reject) => {
     const cbName = 'cb_' + Math.random().toString(36).slice(2);
@@ -26,11 +26,10 @@ function jsonpGet(params) {
   });
 }
 
-// 書き込み用（no-corsでレスポンスは取れないが書き込みはできる）
+// 書き込み（no-cors）
 async function gasWrite(params) {
   const query = new URLSearchParams({ ...params, callback: 'cb' }).toString();
   await fetch(`${GAS_URL}?${query}`, { mode: 'no-cors' });
-  // レスポンスは取れないので少し待ってからfetchAllで反映確認
   await new Promise(r => setTimeout(r, 1000));
 }
 
