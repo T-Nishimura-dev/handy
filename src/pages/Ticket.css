@@ -1,6 +1,6 @@
 .ticket-page {
   padding: 14px;
-  padding-bottom: 80px;
+  padding-bottom: 120px;
   display: flex;
   flex-direction: column;
   gap: 10px;
@@ -117,9 +117,10 @@
   justify-content: space-around;
   align-items: center;
   position: fixed;
-  bottom: 56px;
+  bottom: 62px;
   left: 0;
   right: 0;
+  z-index: 9;
 }
 
 .summary-item { text-align: center; flex: 1; }
