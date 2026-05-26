@@ -8,13 +8,10 @@ const PROXY_URL = '/api/gas-proxy';
 
 // APIリクエスト
 async function apiGet(params) {
-  if (IS_LOCAL) return null; // ローカルはスキップ
+  if (IS_LOCAL) return null;
   const query = new URLSearchParams(params).toString();
   const res = await fetch(`${PROXY_URL}?${query}`);
-  const text = await res.text();
-  // GASがJSONPで返す場合はcallbackを除去
-  const json = text.replace(/^[^(]+\(/, '').replace(/\)$/, '');
-  return JSON.parse(json);
+  return res.json();
 }
 
 // localStorage操作
