@@ -1,17 +1,37 @@
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
+import { SHEET_CONFIG } from '../config';
 
 const OrderContext = createContext(null);
-
-// 本番はNetlifyプロキシ、ローカルはlocalStorage
 const IS_LOCAL = window.location.hostname === 'localhost';
-const PROXY_URL = '/api/gas-proxy';
+const GAS_URL = SHEET_CONFIG.SCRIPT_URL;
 
-// APIリクエスト
-async function apiGet(params) {
-  if (IS_LOCAL) return null;
-  const query = new URLSearchParams(params).toString();
-  const res = await fetch(`${PROXY_URL}?${query}`);
-  return res.json();
+// 読み込み用JSONP
+function jsonpGet(params) {
+  return new Promise((resolve, reject) => {
+    const cbName = 'cb_' + Math.random().toString(36).slice(2);
+    const query = new URLSearchParams({ ...params, callback: cbName }).toString();
+    const script = document.createElement('script');
+    const timer = setTimeout(() => { cleanup(); reject(new Error('timeout')); }, 15000);
+
+    function cleanup() {
+      clearTimeout(timer);
+      delete window[cbName];
+      if (script.parentNode) script.parentNode.removeChild(script);
+    }
+
+    window[cbName] = (data) => { cleanup(); resolve(data); };
+    script.onerror = () => { cleanup(); reject(new Error('script error')); };
+    script.src = `${GAS_URL}?${query}`;
+    document.head.appendChild(script);
+  });
+}
+
+// 書き込み用（no-corsでレスポンスは取れないが書き込みはできる）
+async function gasWrite(params) {
+  const query = new URLSearchParams({ ...params, callback: 'cb' }).toString();
+  await fetch(`${GAS_URL}?${query}`, { mode: 'no-cors' });
+  // レスポンスは取れないので少し待ってからfetchAllで反映確認
+  await new Promise(r => setTimeout(r, 2000));
 }
 
 // localStorage操作
@@ -26,16 +46,16 @@ export function OrderProvider({ children }) {
   const [loading, setLoading]         = useState(!IS_LOCAL);
 
   const fetchAll = useCallback(async () => {
-    if (IS_LOCAL) return; // ローカルはfetchしない
+    if (IS_LOCAL) return;
     try {
       const [tables, hist] = await Promise.all([
-        apiGet({ action: 'getTables' }),
-        apiGet({ action: 'getHistory' }),
+        jsonpGet({ action: 'getTables' }),
+        jsonpGet({ action: 'getHistory' }),
       ]);
       if (tables) { setTableOrders(tables); saveLocal('handy_orders', tables); }
       if (hist)   { setHistory(hist);       saveLocal('handy_history', hist); }
     } catch (e) {
-      console.error('fetch error', e);
+      console.error('fetchAll error', e);
     } finally {
       setLoading(false);
     }
@@ -55,7 +75,6 @@ export function OrderProvider({ children }) {
     const minItems  = items.map(({ id, name, price, qty }) => ({ id, name, price, qty }));
 
     if (IS_LOCAL) {
-      // ローカル：localStorageに保存
       setTableOrders(prev => {
         const existing = prev[tableNum];
         let merged = minItems;
@@ -72,7 +91,7 @@ export function OrderProvider({ children }) {
         return next;
       });
     } else {
-      await apiGet({ action: 'addOrder', tableNum, pax, startTime, items: JSON.stringify(minItems) });
+      await gasWrite({ action: 'addOrder', tableNum, pax, startTime, items: JSON.stringify(minItems) });
       await fetchAll();
     }
   };
@@ -93,7 +112,7 @@ export function OrderProvider({ children }) {
         return next;
       });
     } else {
-      await apiGet({ action: 'checkout', tableNum });
+      await gasWrite({ action: 'checkout', tableNum });
       await fetchAll();
     }
   };
