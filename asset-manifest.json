@@ -1,0 +1,13 @@
+{
+  "files": {
+    "main.css": "/handy/static/css/main.6a54d43d.css",
+    "main.js": "/handy/static/js/main.d6071f2a.js",
+    "index.html": "/handy/index.html",
+    "main.6a54d43d.css.map": "/handy/static/css/main.6a54d43d.css.map",
+    "main.d6071f2a.js.map": "/handy/static/js/main.d6071f2a.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.6a54d43d.css",
+    "static/js/main.d6071f2a.js"
+  ]
+}
