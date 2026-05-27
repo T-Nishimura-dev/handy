@@ -7,12 +7,19 @@ function formatDate(iso) {
   return `${d.getHours().toString().padStart(2,'0')}:${d.getMinutes().toString().padStart(2,'0')}`;
 }
 
+// 営業日の基準日を取得（午前6時区切り）
+function getBusinessDay(date) {
+  const d = new Date(date);
+  if (d.getHours() < 6) d.setDate(d.getDate() - 1);
+  return `${d.getFullYear()}-${d.getMonth()}-${d.getDate()}`;
+}
+
 export default function Sales() {
   const { history } = useOrders();
 
-  // 本日の履歴
-  const today = new Date().toDateString();
-  const todayHistory = history.filter(h => new Date(h.checkoutTime).toDateString() === today);
+  // 本日の履歴（午前6時区切り）
+  const todayKey = getBusinessDay(new Date());
+  const todayHistory = history.filter(h => getBusinessDay(h.checkoutTime) === todayKey);
 
   const todaySales = todayHistory.reduce((s, h) => s + h.total, 0);
   const todayPax = todayHistory.reduce((s, h) => s + h.pax, 0);
