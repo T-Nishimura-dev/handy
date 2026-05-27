@@ -1,39 +1,11 @@
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
-import { SHEET_CONFIG } from '../config';
+import { ref, set, get, remove, push, onValue, off } from 'firebase/database';
+import { db } from '../firebase';
 
 const OrderContext = createContext(null);
 const IS_LOCAL = window.location.hostname === 'localhost';
-const GAS_URL = SHEET_CONFIG.SCRIPT_URL;
 
-// JSONP読み込み
-function jsonpGet(params) {
-  return new Promise((resolve, reject) => {
-    const cbName = 'cb_' + Math.random().toString(36).slice(2);
-    const query = new URLSearchParams({ ...params, callback: cbName }).toString();
-    const script = document.createElement('script');
-    const timer = setTimeout(() => { cleanup(); reject(new Error('timeout')); }, 15000);
-
-    function cleanup() {
-      clearTimeout(timer);
-      delete window[cbName];
-      if (script.parentNode) script.parentNode.removeChild(script);
-    }
-
-    window[cbName] = (data) => { cleanup(); resolve(data); };
-    script.onerror = () => { cleanup(); reject(new Error('script error')); };
-    script.src = `${GAS_URL}?${query}`;
-    document.head.appendChild(script);
-  });
-}
-
-// 書き込み（no-cors）
-async function gasWrite(params) {
-  const query = new URLSearchParams({ ...params, callback: 'cb' }).toString();
-  await fetch(`${GAS_URL}?${query}`, { mode: 'no-cors' });
-  await new Promise(r => setTimeout(r, 1000));
-}
-
-// localStorage操作
+// localStorage操作（ローカル開発用）
 const loadLocal = (key, def) => {
   try { return JSON.parse(localStorage.getItem(key)) || def; } catch { return def; }
 };
@@ -44,34 +16,42 @@ export function OrderProvider({ children }) {
   const [history, setHistory]         = useState(() => loadLocal('handy_history', []));
   const [loading, setLoading]         = useState(!IS_LOCAL);
 
-  const fetchAll = useCallback(async () => {
+  // Firebase リアルタイム同期
+  useEffect(() => {
     if (IS_LOCAL) return;
-    try {
-      const [tables, hist] = await Promise.all([
-        jsonpGet({ action: 'getTables' }),
-        jsonpGet({ action: 'getHistory' }),
-      ]);
-      if (tables) { setTableOrders(tables); saveLocal('handy_orders', tables); }
-      if (hist)   { setHistory(hist);       saveLocal('handy_history', hist); }
-    } catch (e) {
-      console.error('fetchAll error', e);
-    } finally {
+
+    const tablesRef = ref(db, 'tables');
+    const historyRef = ref(db, 'history');
+
+    const unsubTables = onValue(tablesRef, (snapshot) => {
+      const data = snapshot.val() || {};
+      setTableOrders(data);
+      saveLocal('handy_orders', data);
       setLoading(false);
-    }
+    });
+
+    const unsubHistory = onValue(historyRef, (snapshot) => {
+      const data = snapshot.val();
+      if (data) {
+        const arr = Object.values(data).sort((a, b) => b.checkoutTime > a.checkoutTime ? 1 : -1);
+        setHistory(arr);
+        saveLocal('handy_history', arr);
+      } else {
+        setHistory([]);
+      }
+    });
+
+    return () => {
+      off(tablesRef);
+      off(historyRef);
+    };
   }, []);
 
-  useEffect(() => {
-    fetchAll();
-    if (!IS_LOCAL) {
-      const timer = setInterval(fetchAll, 30000);
-      return () => clearInterval(timer);
-    }
-  }, [fetchAll]);
+  const fetchAll = useCallback(() => {}, []); // Firebase は onValue で自動同期
 
   // 注文追加
   const addOrder = async (tableNum, items, pax = 1) => {
-    const startTime = tableOrders[tableNum]?.startTime || new Date().toISOString();
-    const minItems  = items.map(({ id, name, price, qty }) => ({ id, name, price, qty }));
+    const minItems = items.map(({ id, name, price, qty }) => ({ id, name, price, qty }));
 
     if (IS_LOCAL) {
       setTableOrders(prev => {
@@ -85,14 +65,33 @@ export function OrderProvider({ children }) {
             else merged.push(ni);
           });
         }
-        const next = { ...prev, [tableNum]: { items: merged, pax, startTime } };
+        const next = { ...prev, [tableNum]: { items: merged, pax, startTime: existing?.startTime || new Date().toISOString() } };
         saveLocal('handy_orders', next);
         return next;
       });
-    } else {
-      await gasWrite({ action: 'addOrder', tableNum, pax, startTime, items: JSON.stringify(minItems) });
-      await fetchAll();
+      return;
     }
+
+    // Firebase
+    const tableRef = ref(db, `tables/${tableNum}`);
+    const snapshot = await get(tableRef);
+    const existing = snapshot.val();
+
+    let merged = minItems;
+    if (existing) {
+      merged = [...existing.items];
+      minItems.forEach(ni => {
+        const idx = merged.findIndex(i => i.id === ni.id);
+        if (idx >= 0) merged[idx] = { ...merged[idx], qty: merged[idx].qty + ni.qty };
+        else merged.push(ni);
+      });
+    }
+
+    await set(tableRef, {
+      items: merged,
+      pax: existing?.pax || pax,
+      startTime: existing?.startTime || new Date().toISOString(),
+    });
   };
 
   // 会計
@@ -101,8 +100,15 @@ export function OrderProvider({ children }) {
       const order = tableOrders[tableNum];
       if (!order) return;
       const total = order.items.reduce((sum, i) => sum + i.price * i.qty, 0);
-      const record = { id: Date.now(), tableNum, pax: order.pax, items: order.items, total,
-        startTime: order.startTime, checkoutTime: new Date().toISOString() };
+      const record = {
+        id: Date.now(),
+        tableNum,
+        pax: order.pax,
+        items: order.items,
+        total,
+        startTime: order.startTime,
+        checkoutTime: new Date().toISOString(),
+      };
       setHistory(prev => { const next = [record, ...prev]; saveLocal('handy_history', next); return next; });
       setTableOrders(prev => {
         const next = { ...prev };
@@ -110,10 +116,31 @@ export function OrderProvider({ children }) {
         saveLocal('handy_orders', next);
         return next;
       });
-    } else {
-      await gasWrite({ action: 'checkout', tableNum });
-      await fetchAll();
+      return;
     }
+
+    // Firebase
+    const tableRef = ref(db, `tables/${tableNum}`);
+    const snapshot = await get(tableRef);
+    const order = snapshot.val();
+    if (!order) return;
+
+    const total = order.items.reduce((sum, i) => sum + i.price * i.qty, 0);
+    const now = new Date();
+    const jst = new Date(now.getTime() + 9 * 60 * 60 * 1000);
+    const checkoutTime = jst.toISOString().replace('Z', '+09:00');
+
+    const historyRef = ref(db, 'history');
+    await push(historyRef, {
+      tableNum,
+      pax: order.pax,
+      items: order.items,
+      total,
+      startTime: order.startTime,
+      checkoutTime,
+    });
+
+    await remove(tableRef);
   };
 
   const getTotal = (tableNum) => {
