@@ -7,6 +7,7 @@ import Login from './pages/Login';
 import Order from './pages/Order';
 import Ticket from './pages/Ticket';
 import Sales from './pages/Sales';
+import Admin from './pages/Admin';
 
 function AppRoutes() {
   const { isLoggedIn } = useAuth();
@@ -21,6 +22,7 @@ function AppRoutes() {
             <Route path="/" element={<Order />} />
             <Route path="/ticket" element={<Ticket />} />
             <Route path="/sales" element={<Sales />} />
+            <Route path="/admin" element={<Admin />} />
             <Route path="*" element={<Navigate to="/" />} />
           </Routes>
         </Layout>
