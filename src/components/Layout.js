@@ -7,7 +7,6 @@ const tabs = [
   { path: '/',       icon: '📋', label: '注文入力' },
   { path: '/ticket', icon: '🧾', label: '伝票' },
   { path: '/sales',  icon: '📊', label: '売上' },
-  { path: '/admin',  icon: '⚙️', label: '管理' },
 ];
 
 export default function Layout({ children }) {
@@ -32,6 +31,13 @@ export default function Layout({ children }) {
             title="データを更新"
           >
             {loading ? '⟳' : '↺'}
+          </div>
+          <div
+            className="admin-icon"
+            onClick={() => navigate('/admin')}
+            title="管理"
+          >
+            ⚙️
           </div>
         </div>
       </div>

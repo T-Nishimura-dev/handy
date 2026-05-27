@@ -79,20 +79,7 @@ export default function Admin() {
     setConfirm(null);
   };
 
-  if (!isLoggedIn) {
-    return (
-      <div className="admin-login">
-        <div className="admin-login-box">
-          <div className="admin-title">管理者ページ</div>
-          <input type="password" className="admin-input" placeholder="管理者パスワード"
-            value={password} onChange={e => setPassword(e.target.value)}
-            onKeyDown={e => e.key === 'Enter' && handleLogin()} />
-          {error && <div className="admin-error">{error}</div>}
-          <button className="admin-btn" onClick={handleLogin}>ログイン</button>
-        </div>
-      </div>
-    );
-  }
+
 
   const tables = Object.keys(tableOrders).map(Number).sort((a, b) => a - b);
 
