@@ -1,11 +1,11 @@
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { ref, set, get, remove, push, onValue, off } from 'firebase/database';
 import { db } from '../firebase';
+import { MENU_ITEMS, CATEGORIES } from '../config';
 
 const OrderContext = createContext(null);
 const IS_LOCAL = window.location.hostname === 'localhost';
 
-// localStorage操作（ローカル開発用）
 const loadLocal = (key, def) => {
   try { return JSON.parse(localStorage.getItem(key)) || def; } catch { return def; }
 };
@@ -14,23 +14,25 @@ const saveLocal = (key, val) => localStorage.setItem(key, JSON.stringify(val));
 export function OrderProvider({ children }) {
   const [tableOrders, setTableOrders] = useState(() => loadLocal('handy_orders', {}));
   const [history, setHistory]         = useState(() => loadLocal('handy_history', []));
+  const [menuItems, setMenuItems]     = useState(() => loadLocal('handy_menu', MENU_ITEMS));
+  const [categories, setCategories]   = useState(() => loadLocal('handy_categories', CATEGORIES));
   const [loading, setLoading]         = useState(!IS_LOCAL);
 
-  // Firebase リアルタイム同期
   useEffect(() => {
     if (IS_LOCAL) return;
 
-    const tablesRef = ref(db, 'tables');
-    const historyRef = ref(db, 'history');
+    const tablesRef   = ref(db, 'tables');
+    const historyRef  = ref(db, 'history');
+    const menuRef     = ref(db, 'menu');
 
-    const unsubTables = onValue(tablesRef, (snapshot) => {
+    onValue(tablesRef, (snapshot) => {
       const data = snapshot.val() || {};
       setTableOrders(data);
       saveLocal('handy_orders', data);
       setLoading(false);
     });
 
-    const unsubHistory = onValue(historyRef, (snapshot) => {
+    onValue(historyRef, (snapshot) => {
       const data = snapshot.val();
       if (data) {
         const arr = Object.values(data).sort((a, b) => b.checkoutTime > a.checkoutTime ? 1 : -1);
@@ -41,15 +43,30 @@ export function OrderProvider({ children }) {
       }
     });
 
+    onValue(menuRef, (snapshot) => {
+      const data = snapshot.val();
+      if (data) {
+        const items = Array.isArray(data.items) ? data.items : Object.values(data.items || {});
+        const cats  = Array.isArray(data.categories) ? data.categories : CATEGORIES;
+        setMenuItems(items);
+        setCategories(cats);
+        saveLocal('handy_menu', items);
+        saveLocal('handy_categories', cats);
+      } else {
+        // 初回：config.jsのデータをFirebaseに投入
+        set(ref(db, 'menu'), { items: MENU_ITEMS, categories: CATEGORIES });
+      }
+    });
+
     return () => {
       off(tablesRef);
       off(historyRef);
+      off(menuRef);
     };
   }, []);
 
-  const fetchAll = useCallback(() => {}, []); // Firebase は onValue で自動同期
+  const fetchAll = useCallback(() => {}, []);
 
-  // 注文追加
   const addOrder = async (tableNum, items, pax = 1) => {
     const minItems = items.map(({ id, name, price, qty }) => ({ id, name, price, qty }));
 
@@ -72,7 +89,6 @@ export function OrderProvider({ children }) {
       return;
     }
 
-    // Firebase
     const tableRef = ref(db, `tables/${tableNum}`);
     const snapshot = await get(tableRef);
     const existing = snapshot.val();
@@ -94,20 +110,14 @@ export function OrderProvider({ children }) {
     });
   };
 
-  // 会計
   const checkout = async (tableNum) => {
     if (IS_LOCAL) {
       const order = tableOrders[tableNum];
       if (!order) return;
       const total = order.items.reduce((sum, i) => sum + i.price * i.qty, 0);
       const record = {
-        id: Date.now(),
-        tableNum,
-        pax: order.pax,
-        items: order.items,
-        total,
-        startTime: order.startTime,
-        checkoutTime: new Date().toISOString(),
+        id: Date.now(), tableNum, pax: order.pax, items: order.items, total,
+        startTime: order.startTime, checkoutTime: new Date().toISOString(),
       };
       setHistory(prev => { const next = [record, ...prev]; saveLocal('handy_history', next); return next; });
       setTableOrders(prev => {
@@ -119,7 +129,6 @@ export function OrderProvider({ children }) {
       return;
     }
 
-    // Firebase
     const tableRef = ref(db, `tables/${tableNum}`);
     const snapshot = await get(tableRef);
     const order = snapshot.val();
@@ -130,17 +139,16 @@ export function OrderProvider({ children }) {
     const jst = new Date(now.getTime() + 9 * 60 * 60 * 1000);
     const checkoutTime = jst.toISOString().replace('Z', '+09:00');
 
-    const historyRef = ref(db, 'history');
-    await push(historyRef, {
-      tableNum,
-      pax: order.pax,
-      items: order.items,
-      total,
-      startTime: order.startTime,
-      checkoutTime,
+    await push(ref(db, 'history'), {
+      tableNum, pax: order.pax, items: order.items, total,
+      startTime: order.startTime, checkoutTime,
     });
-
     await remove(tableRef);
+  };
+
+  // メニュー保存
+  const saveMenu = async (items, cats) => {
+    await set(ref(db, 'menu'), { items, categories: cats });
   };
 
   const getTotal = (tableNum) => {
@@ -150,7 +158,10 @@ export function OrderProvider({ children }) {
   };
 
   return (
-    <OrderContext.Provider value={{ tableOrders, history, addOrder, checkout, getTotal, loading, fetchAll }}>
+    <OrderContext.Provider value={{
+      tableOrders, history, menuItems, categories,
+      addOrder, checkout, getTotal, loading, fetchAll, saveMenu
+    }}>
       {children}
     </OrderContext.Provider>
   );

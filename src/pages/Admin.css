@@ -1,3 +1,79 @@
+.admin-tabs {
+  display: flex;
+  background: #1a1815;
+  border: 1px solid #2e2a22;
+  border-radius: 10px;
+  overflow: hidden;
+  margin-bottom: 4px;
+}
+
+.admin-tab {
+  flex: 1;
+  padding: 10px;
+  text-align: center;
+  font-size: 12px;
+  color: #9a9080;
+  cursor: pointer;
+}
+
+.admin-tab.active {
+  background: #d4922a;
+  color: #0f0e0c;
+  font-weight: 700;
+}
+
+.add-btn {
+  font-size: 11px;
+  color: #4a9c6a;
+  border: 1px solid #4a9c6a;
+  border-radius: 6px;
+  padding: 3px 10px;
+  cursor: pointer;
+}
+
+.add-form {
+  padding: 12px 14px;
+  border-bottom: 1px solid #2e2a22;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.admin-select {
+  width: 100%;
+  padding: 10px 12px;
+  background: #242018;
+  border: 1px solid #2e2a22;
+  border-radius: 8px;
+  color: #f0ead8;
+  font-size: 14px;
+  outline: none;
+}
+
+.admin-item-actions {
+  display: flex;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.edit-btn {
+  font-size: 12px;
+  color: #3a7fc1;
+  border: 1px solid #3a7fc1;
+  border-radius: 6px;
+  padding: 4px 10px;
+  cursor: pointer;
+}
+
+.menu-tag-small {
+  font-size: 10px;
+  background: rgba(212,146,42,0.15);
+  color: #e8b45a;
+  padding: 1px 5px;
+  border-radius: 4px;
+  margin-left: 4px;
+}
+
 .admin-login {
   min-height: 100vh;
   background: #0f0e0c;

@@ -4,7 +4,9 @@ import { useOrders } from '../hooks/useOrders';
 import './Order.css';
 
 export default function Order() {
-  const { tableOrders, addOrder } = useOrders();
+  const { tableOrders, addOrder, menuItems: fbMenu, categories: fbCats } = useOrders();
+  const activeMenu = fbMenu?.length ? fbMenu : MENU_ITEMS;
+  const activeCats = fbCats?.length ? fbCats : CATEGORIES;
   const [selectedTable, setSelectedTable] = useState(null);
   const [category, setCategory] = useState('すべて');
   const [cart, setCart] = useState({});
@@ -15,8 +17,8 @@ export default function Order() {
   const [sent, setSent] = useState(false);
 
   const filteredMenu = category === 'すべて'
-    ? MENU_ITEMS
-    : MENU_ITEMS.filter(m => m.category === category);
+    ? activeMenu
+    : activeMenu.filter(m => m.category === category);
 
   const updateCart = (item, delta) => {
     setCart(prev => {
@@ -89,7 +91,7 @@ export default function Order() {
 
       {/* カテゴリ */}
       <div className="cat-tabs">
-        {CATEGORIES.map(c => (
+        {activeCats.map(c => (
           <div
             key={c}
             className={`cat-tab ${category === c ? 'active' : ''}`}
