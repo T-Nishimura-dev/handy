@@ -110,6 +110,40 @@ export function OrderProvider({ children }) {
     });
   };
 
+  // 注文項目を1つ減らす（0になったら削除、全部消えたらテーブルごと削除）
+  const removeOrderItem = async (tableNum, itemId) => {
+    if (IS_LOCAL) {
+      setTableOrders(prev => {
+        const order = prev[tableNum];
+        if (!order) return prev;
+        const items = order.items
+          .map(i => i.id === itemId ? { ...i, qty: i.qty - 1 } : i)
+          .filter(i => i.qty > 0);
+        const next = { ...prev };
+        if (items.length === 0) delete next[tableNum];
+        else next[tableNum] = { ...order, items };
+        saveLocal('handy_orders', next);
+        return next;
+      });
+      return;
+    }
+
+    const tableRef = ref(db, `tables/${tableNum}`);
+    const snapshot = await get(tableRef);
+    const order = snapshot.val();
+    if (!order) return;
+
+    const items = order.items
+      .map(i => i.id === itemId ? { ...i, qty: i.qty - 1 } : i)
+      .filter(i => i.qty > 0);
+
+    if (items.length === 0) {
+      await remove(tableRef);
+    } else {
+      await set(tableRef, { ...order, items });
+    }
+  };
+
   const checkout = async (tableNum) => {
     if (IS_LOCAL) {
       const order = tableOrders[tableNum];
@@ -160,7 +194,7 @@ export function OrderProvider({ children }) {
   return (
     <OrderContext.Provider value={{
       tableOrders, history, menuItems, categories,
-      addOrder, checkout, getTotal, loading, fetchAll, saveMenu
+      addOrder, checkout, removeOrderItem, getTotal, loading, fetchAll, saveMenu
     }}>
       {children}
     </OrderContext.Provider>

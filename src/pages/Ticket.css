@@ -57,6 +57,55 @@
 .card-pax { font-size: 12px; font-weight: 500; color: #f0ead8; margin-bottom: 2px; }
 .card-time { font-size: 10px; color: #9a9080; }
 
+.card-header-right {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.btn-edit {
+  padding: 6px 10px;
+  border-radius: 6px;
+  border: 1px solid #5a4a3a;
+  color: #c9b896;
+  background: rgba(255,255,255,0.02);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  cursor: pointer;
+  user-select: none;
+}
+
+.btn-edit.active {
+  background: #c95a3a;
+  border-color: #c95a3a;
+  color: #fff;
+}
+
+.btn-remove-item {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  border: 1.5px solid #c95a3a;
+  background: rgba(201,90,58,0.1);
+  color: #c95a3a;
+  font-size: 16px;
+  font-weight: 700;
+  line-height: 1;
+  padding: 0;
+  margin-right: 8px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.btn-remove-item:active {
+  background: #c95a3a;
+  color: #fff;
+}
+
 .card-total { text-align: right; }
 .card-total-num {
   font-family: 'Zen Kaku Gothic New', sans-serif;

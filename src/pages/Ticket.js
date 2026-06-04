@@ -9,8 +9,14 @@ function elapsed(startTime) {
 }
 
 export default function Ticket() {
-  const { tableOrders, checkout, getTotal } = useOrders();
+  const { tableOrders, checkout, removeOrderItem, getTotal } = useOrders();
   const [checkingOut, setCheckingOut] = useState(null); // 会計処理中のテーブル番号
+  const [editing, setEditing] = useState(null); // 取消編集中のテーブル番号
+
+  const handleRemoveItem = (tableNum, item) => {
+    if (!window.confirm(`「${item.name}」を1つ取り消しますか？`)) return;
+    removeOrderItem(tableNum, item.id);
+  };
 
   const tables = Object.keys(tableOrders).map(Number).sort((a, b) => a - b);
   const totalSales = Object.keys(tableOrders).reduce((sum, t) => sum + getTotal(Number(t)), 0);
@@ -40,6 +46,7 @@ export default function Ticket() {
         const order = tableOrders[tableNum];
         const total = getTotal(tableNum);
         const isProcessing = checkingOut === tableNum;
+        const isEditing = editing === tableNum;
 
         return (
           <div key={tableNum} className="table-card">
@@ -51,15 +58,31 @@ export default function Ticket() {
                   <div className="card-time">⏱ {elapsed(order.startTime)}</div>
                 </div>
               </div>
-              <div className="card-total">
-                <div className="card-total-num">¥{total.toLocaleString()}</div>
-                <div className="card-total-label">現在合計</div>
+              <div className="card-header-right">
+                <div className="card-total">
+                  <div className="card-total-num">¥{total.toLocaleString()}</div>
+                  <div className="card-total-label">現在合計</div>
+                </div>
+                <div
+                  className={`btn-edit ${isEditing ? 'active' : ''}`}
+                  onClick={() => setEditing(isEditing ? null : tableNum)}
+                >
+                  {isEditing ? '完了' : '取消'}
+                </div>
               </div>
             </div>
 
             <div className="card-body">
               {order.items.map(item => (
                 <div key={item.id} className="order-row">
+                  {isEditing && (
+                    <button
+                      className="btn-remove-item"
+                      onClick={() => handleRemoveItem(tableNum, item)}
+                    >
+                      −
+                    </button>
+                  )}
                   <span className="order-name">{item.name}</span>
                   <span className="order-qty">×{item.qty}</span>
                   <span className="order-price">¥{(item.price * item.qty).toLocaleString()}</span>
