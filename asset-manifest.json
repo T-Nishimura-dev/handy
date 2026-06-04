@@ -1,13 +1,13 @@
 {
   "files": {
-    "main.css": "/handy/static/css/main.9d613d96.css",
-    "main.js": "/handy/static/js/main.107bf524.js",
+    "main.css": "/handy/static/css/main.f7490c15.css",
+    "main.js": "/handy/static/js/main.57fbd9d7.js",
     "index.html": "/handy/index.html",
-    "main.9d613d96.css.map": "/handy/static/css/main.9d613d96.css.map",
-    "main.107bf524.js.map": "/handy/static/js/main.107bf524.js.map"
+    "main.f7490c15.css.map": "/handy/static/css/main.f7490c15.css.map",
+    "main.57fbd9d7.js.map": "/handy/static/js/main.57fbd9d7.js.map"
   },
   "entrypoints": [
-    "static/css/main.9d613d96.css",
-    "static/js/main.107bf524.js"
+    "static/css/main.f7490c15.css",
+    "static/js/main.57fbd9d7.js"
   ]
 }
