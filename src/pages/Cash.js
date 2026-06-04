@@ -1,5 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import './Cash.css';
+
+const STORAGE_KEY = 'handy_cash_counts';
+const loadCounts = () => {
+  try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || {}; } catch { return {}; }
+};
 
 const DENOMINATIONS = [
   { value: 10000, label: '一万円札', type: 'bill' },
@@ -15,7 +20,11 @@ const DENOMINATIONS = [
 ];
 
 export default function Cash() {
-  const [counts, setCounts] = useState({});
+  const [counts, setCounts] = useState(loadCounts);
+
+  useEffect(() => {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(counts));
+  }, [counts]);
 
   const setCount = (value, raw) => {
     const n = parseInt(raw, 10);
