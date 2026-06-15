@@ -193,3 +193,183 @@
   min-width: 70px;
   text-align: right;
 }
+
+.daily-add-btn {
+  padding: 12px;
+  border-radius: 10px;
+  border: 1px dashed #5a4a3a;
+  background: rgba(255,255,255,0.02);
+  color: #e8b45a;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-align: center;
+  cursor: pointer;
+  user-select: none;
+}
+
+.daily-add-btn:active {
+  background: rgba(232,180,90,0.08);
+}
+
+.daily-manual-badge {
+  display: inline-block;
+  margin-left: 6px;
+  padding: 1px 6px;
+  border-radius: 4px;
+  background: rgba(212,146,42,0.2);
+  border: 1px solid rgba(212,146,42,0.4);
+  color: #d4922a;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  vertical-align: middle;
+}
+
+.daily-manual-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 8px 10px;
+  background: rgba(212,146,42,0.08);
+  border: 1px solid rgba(212,146,42,0.2);
+  border-radius: 8px;
+  margin-bottom: 10px;
+}
+
+.daily-manual-detail {
+  font-size: 12px;
+  color: #f0ead8;
+}
+
+.daily-manual-edit {
+  padding: 6px 10px;
+  border-radius: 6px;
+  border: 1px solid #5a4a3a;
+  color: #c9b896;
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+  user-select: none;
+  white-space: nowrap;
+}
+
+.daily-manual-edit:active {
+  background: rgba(255,255,255,0.04);
+}
+
+.daily-no-detail {
+  font-size: 11px;
+  color: #9a9080;
+  text-align: center;
+  padding: 8px 0;
+}
+
+/* モーダル */
+.daily-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 50;
+  padding: 16px;
+}
+
+.daily-modal {
+  background: #242018;
+  border: 1px solid #3a342a;
+  border-radius: 14px;
+  padding: 20px;
+  width: 100%;
+  max-width: 360px;
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+.daily-modal-title {
+  font-family: 'Zen Kaku Gothic New', sans-serif;
+  font-weight: 700;
+  font-size: 16px;
+  color: #e8b45a;
+  margin-bottom: 14px;
+  letter-spacing: 0.05em;
+}
+
+.daily-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 12px;
+}
+
+.daily-field span {
+  font-size: 11px;
+  color: #9a9080;
+  letter-spacing: 0.05em;
+}
+
+.daily-field input {
+  background: #1a1815;
+  border: 1px solid #3a342a;
+  border-radius: 8px;
+  padding: 10px 12px;
+  color: #f0ead8;
+  font-size: 14px;
+  font-family: inherit;
+  -moz-appearance: textfield;
+}
+
+.daily-field input::-webkit-outer-spin-button,
+.daily-field input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.daily-field input:focus {
+  outline: none;
+  border-color: #d4922a;
+}
+
+.daily-field input:disabled {
+  opacity: 0.6;
+}
+
+.daily-modal-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 16px;
+}
+
+.btn-daily-cancel,
+.btn-daily-save,
+.btn-daily-delete {
+  flex: 1;
+  padding: 11px;
+  border-radius: 8px;
+  text-align: center;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  cursor: pointer;
+  user-select: none;
+}
+
+.btn-daily-cancel {
+  background: rgba(255,255,255,0.04);
+  color: #c9b896;
+  border: 1px solid #3a342a;
+}
+
+.btn-daily-save {
+  background: #4a9c6a;
+  color: #fff;
+}
+
+.btn-daily-delete {
+  background: rgba(201,90,58,0.15);
+  color: #c95a3a;
+  border: 1px solid #c95a3a;
+}

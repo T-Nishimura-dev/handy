@@ -17,6 +17,7 @@ export function OrderProvider({ children }) {
   const [menuItems, setMenuItems]     = useState(() => loadLocal('handy_menu', MENU_ITEMS));
   const [categories, setCategories]   = useState(() => loadLocal('handy_categories', CATEGORIES));
   const [reservations, setReservations] = useState(() => loadLocal('handy_reservations', {}));
+  const [manualDaily, setManualDaily]   = useState(() => loadLocal('handy_manual_daily', {}));
   const [loading, setLoading]         = useState(!IS_LOCAL);
 
   useEffect(() => {
@@ -26,6 +27,7 @@ export function OrderProvider({ children }) {
     const historyRef      = ref(db, 'history');
     const menuRef         = ref(db, 'menu');
     const reservationsRef = ref(db, 'reservations');
+    const manualDailyRef  = ref(db, 'manualDaily');
 
     onValue(tablesRef, (snapshot) => {
       const data = snapshot.val() || {};
@@ -66,11 +68,18 @@ export function OrderProvider({ children }) {
       saveLocal('handy_reservations', data);
     });
 
+    onValue(manualDailyRef, (snapshot) => {
+      const data = snapshot.val() || {};
+      setManualDaily(data);
+      saveLocal('handy_manual_daily', data);
+    });
+
     return () => {
       off(tablesRef);
       off(historyRef);
       off(menuRef);
       off(reservationsRef);
+      off(manualDailyRef);
     };
   }, []);
 
@@ -222,6 +231,38 @@ export function OrderProvider({ children }) {
     await set(ref(db, `reservations/${id}`), { ...data, id });
   };
 
+  // 手動売上（営業日キーごとに1レコード）
+  // record = { sales, pax, count }
+  const saveManualDaily = async (dayKey, record) => {
+    const data = {
+      sales: Number(record.sales) || 0,
+      pax: Number(record.pax) || 0,
+      count: Number(record.count) || 0,
+    };
+    if (IS_LOCAL) {
+      setManualDaily(prev => {
+        const next = { ...prev, [dayKey]: data };
+        saveLocal('handy_manual_daily', next);
+        return next;
+      });
+      return;
+    }
+    await set(ref(db, `manualDaily/${dayKey}`), data);
+  };
+
+  const deleteManualDaily = async (dayKey) => {
+    if (IS_LOCAL) {
+      setManualDaily(prev => {
+        const next = { ...prev };
+        delete next[dayKey];
+        saveLocal('handy_manual_daily', next);
+        return next;
+      });
+      return;
+    }
+    await remove(ref(db, `manualDaily/${dayKey}`));
+  };
+
   const deleteReservation = async (id) => {
     if (IS_LOCAL) {
       setReservations(prev => {
@@ -243,9 +284,10 @@ export function OrderProvider({ children }) {
 
   return (
     <OrderContext.Provider value={{
-      tableOrders, history, menuItems, categories, reservations,
+      tableOrders, history, menuItems, categories, reservations, manualDaily,
       addOrder, checkout, removeOrderItem, getTotal, loading, fetchAll, saveMenu,
-      addReservation, updateReservation, deleteReservation
+      addReservation, updateReservation, deleteReservation,
+      saveManualDaily, deleteManualDaily
     }}>
       {children}
     </OrderContext.Provider>

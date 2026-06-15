@@ -16,23 +16,36 @@ function formatBusinessDayKey(key) {
   return `${y}/${m + 1}/${d}(${w})`;
 }
 
+// 営業日キー → "YYYY-MM-DD"（<input type="date"> 用）
+function dayKeyToInputValue(key) {
+  const [y, m, d] = key.split('-').map(Number);
+  return `${y}-${String(m + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+}
+
+// "YYYY-MM-DD" → 営業日キー
+function inputValueToDayKey(value) {
+  const [y, m, d] = value.split('-').map(Number);
+  return `${y}-${m - 1}-${d}`;
+}
+
+function todayDayKey() {
+  return getBusinessDay(new Date());
+}
+
 export default function Daily() {
-  const { history } = useOrders();
+  const { history, manualDaily, saveManualDaily, deleteManualDaily } = useOrders();
   const [expanded, setExpanded] = useState({});
+  const [modal, setModal] = useState(null); // { mode: 'new'|'edit', dayKey, record? }
 
   const dailyStats = useMemo(() => {
     const map = {};
+
     history.forEach(h => {
       const key = getBusinessDay(h.checkoutTime);
       if (!map[key]) {
-        map[key] = {
-          key,
-          sales: 0,
-          pax: 0,
-          count: 0,
-          items: {},
-        };
+        map[key] = { key, sales: 0, pax: 0, count: 0, items: {}, hasHistory: false };
       }
+      map[key].hasHistory = true;
       map[key].sales += h.total;
       map[key].pax += h.pax;
       map[key].count += 1;
@@ -44,12 +57,23 @@ export default function Daily() {
         map[key].items[item.name].total += item.price * item.qty;
       });
     });
+
+    Object.entries(manualDaily || {}).forEach(([key, rec]) => {
+      if (!map[key]) {
+        map[key] = { key, sales: 0, pax: 0, count: 0, items: {}, hasHistory: false };
+      }
+      map[key].sales += Number(rec.sales) || 0;
+      map[key].pax += Number(rec.pax) || 0;
+      map[key].count += Number(rec.count) || 0;
+      map[key].manual = rec;
+    });
+
     return Object.values(map).sort((a, b) => {
       const [ay, am, ad] = a.key.split('-').map(Number);
       const [by, bm, bd] = b.key.split('-').map(Number);
       return new Date(by, bm, bd) - new Date(ay, am, ad);
     });
-  }, [history]);
+  }, [history, manualDaily]);
 
   const grandTotal = dailyStats.reduce((s, d) => s + d.sales, 0);
   const grandPax = dailyStats.reduce((s, d) => s + d.pax, 0);
@@ -84,6 +108,13 @@ export default function Daily() {
         </div>
       </div>
 
+      <div
+        className="daily-add-btn"
+        onClick={() => setModal({ mode: 'new', dayKey: todayDayKey() })}
+      >
+        ＋ 過去の売上を手動登録
+      </div>
+
       <div className="daily-list">
         {dailyStats.length === 0 ? (
           <div className="daily-empty">履歴がありません</div>
@@ -102,7 +133,10 @@ export default function Daily() {
                   onClick={() => setExpanded(prev => ({ ...prev, [d.key]: !prev[d.key] }))}
                 >
                   <div className="daily-card-left">
-                    <div className="daily-card-date">{formatBusinessDayKey(d.key)}</div>
+                    <div className="daily-card-date">
+                      {formatBusinessDayKey(d.key)}
+                      {d.manual && <span className="daily-manual-badge">手動</span>}
+                    </div>
                     <div className="daily-card-sub">
                       {d.pax}名 · {d.count}会計 · 客単価 ¥{avg.toLocaleString()}
                     </div>
@@ -115,21 +149,155 @@ export default function Daily() {
 
                 {isOpen && (
                   <div className="daily-card-body">
-                    <div className="daily-card-section-title">商品別ランキング</div>
-                    {ranking.map((item, idx) => (
-                      <div key={item.name} className="daily-rank-row">
-                        <span className="daily-rank-idx">{idx + 1}</span>
-                        <span className="daily-rank-name">{item.name}</span>
-                        <span className="daily-rank-qty">{item.qty}点</span>
-                        <span className="daily-rank-total">¥{item.total.toLocaleString()}</span>
+                    {d.manual && (
+                      <div className="daily-manual-row">
+                        <div>
+                          <div className="daily-card-section-title" style={{ marginBottom: 4 }}>手動登録分</div>
+                          <div className="daily-manual-detail">
+                            ¥{Number(d.manual.sales).toLocaleString()} · {d.manual.pax}名 · {d.manual.count}会計
+                          </div>
+                        </div>
+                        <div
+                          className="daily-manual-edit"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setModal({ mode: 'edit', dayKey: d.key, record: d.manual });
+                          }}
+                        >
+                          編集
+                        </div>
                       </div>
-                    ))}
+                    )}
+                    {ranking.length > 0 && (
+                      <>
+                        <div className="daily-card-section-title">商品別ランキング</div>
+                        {ranking.map((item, idx) => (
+                          <div key={item.name} className="daily-rank-row">
+                            <span className="daily-rank-idx">{idx + 1}</span>
+                            <span className="daily-rank-name">{item.name}</span>
+                            <span className="daily-rank-qty">{item.qty}点</span>
+                            <span className="daily-rank-total">¥{item.total.toLocaleString()}</span>
+                          </div>
+                        ))}
+                      </>
+                    )}
+                    {!d.hasHistory && !d.manual && (
+                      <div className="daily-no-detail">商品別の内訳はありません</div>
+                    )}
                   </div>
                 )}
               </div>
             );
           })
         )}
+      </div>
+
+      {modal && (
+        <ManualDailyModal
+          modal={modal}
+          onClose={() => setModal(null)}
+          onSave={saveManualDaily}
+          onDelete={deleteManualDaily}
+        />
+      )}
+    </div>
+  );
+}
+
+function ManualDailyModal({ modal, onClose, onSave, onDelete }) {
+  const [dayKey, setDayKey] = useState(modal.dayKey);
+  const [sales, setSales] = useState(modal.record?.sales ?? '');
+  const [pax, setPax] = useState(modal.record?.pax ?? '');
+  const [count, setCount] = useState(modal.record?.count ?? '');
+  const [saving, setSaving] = useState(false);
+
+  const save = async () => {
+    if (saving) return;
+    setSaving(true);
+    try {
+      await onSave(dayKey, { sales, pax, count });
+      onClose();
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const del = async () => {
+    if (!window.confirm('この日の手動登録を削除しますか？')) return;
+    setSaving(true);
+    try {
+      await onDelete(modal.dayKey);
+      onClose();
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  return (
+    <div className="daily-modal-backdrop" onClick={onClose}>
+      <div className="daily-modal" onClick={e => e.stopPropagation()}>
+        <div className="daily-modal-title">
+          {modal.mode === 'edit' ? '手動登録を編集' : '過去の売上を登録'}
+        </div>
+
+        <label className="daily-field">
+          <span>営業日</span>
+          <input
+            type="date"
+            value={dayKeyToInputValue(dayKey)}
+            onChange={e => e.target.value && setDayKey(inputValueToDayKey(e.target.value))}
+            disabled={modal.mode === 'edit'}
+          />
+        </label>
+
+        <label className="daily-field">
+          <span>売上金額（円）</span>
+          <input
+            type="number"
+            inputMode="numeric"
+            min="0"
+            value={sales}
+            onChange={e => setSales(e.target.value)}
+            onFocus={e => e.target.select()}
+            placeholder="0"
+          />
+        </label>
+
+        <label className="daily-field">
+          <span>来客数</span>
+          <input
+            type="number"
+            inputMode="numeric"
+            min="0"
+            value={pax}
+            onChange={e => setPax(e.target.value)}
+            onFocus={e => e.target.select()}
+            placeholder="0"
+          />
+        </label>
+
+        <label className="daily-field">
+          <span>会計数</span>
+          <input
+            type="number"
+            inputMode="numeric"
+            min="0"
+            value={count}
+            onChange={e => setCount(e.target.value)}
+            onFocus={e => e.target.select()}
+            placeholder="0"
+          />
+        </label>
+
+        <div className="daily-modal-actions">
+          {modal.mode === 'edit' && (
+            <div className="btn-daily-delete" onClick={del}>削除</div>
+          )}
+          <div className="btn-daily-cancel" onClick={onClose}>キャンセル</div>
+          <div className="btn-daily-save" onClick={save}>
+            {saving ? '保存中...' : '保存'}
+          </div>
+        </div>
       </div>
     </div>
   );
