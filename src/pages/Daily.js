@@ -37,6 +37,8 @@ export default function Daily() {
   const [expanded, setExpanded] = useState({});
   const [modal, setModal] = useState(null); // { mode: 'new'|'edit', dayKey, record? }
   const [range, setRange] = useState('all'); // 'month' | 'year' | 'all'
+  const [selectedMonth, setSelectedMonth] = useState(''); // "YYYY-M" or ''
+  const [selectedDay, setSelectedDay] = useState(''); // "YYYY-M-D" or ''
 
   const dailyStats = useMemo(() => {
     const map = {};
@@ -76,9 +78,20 @@ export default function Daily() {
     });
   }, [history, manualDaily]);
 
-  const grandTotal = dailyStats.reduce((s, d) => s + d.sales, 0);
-  const grandPax = dailyStats.reduce((s, d) => s + d.pax, 0);
-  const grandCount = dailyStats.reduce((s, d) => s + d.count, 0);
+  // サマリ用に対象を絞り込み
+  let summarySource = dailyStats;
+  if (range === 'month' && selectedMonth) {
+    summarySource = dailyStats.filter(d => {
+      const [y, m] = d.key.split('-').map(Number);
+      return `${y}-${m}` === selectedMonth;
+    });
+  } else if (range === 'all' && selectedDay) {
+    summarySource = dailyStats.filter(d => d.key === selectedDay);
+  }
+
+  const grandTotal = summarySource.reduce((s, d) => s + d.sales, 0);
+  const grandPax = summarySource.reduce((s, d) => s + d.pax, 0);
+  const grandCount = summarySource.reduce((s, d) => s + d.count, 0);
   const grandAvg = grandPax > 0 ? Math.floor(grandTotal / grandPax) : 0;
 
   // 月ごと集計（key: "YYYY-M"、月は0始まり）
@@ -109,7 +122,19 @@ export default function Daily() {
     return Object.values(map).sort((a, b) => b.year - a.year);
   }, [monthlyStats]);
 
-  const rangeLabel = range === 'month' ? '月ごと' : range === 'year' ? '年ごと' : '累計（全期間）';
+  let rangeLabel;
+  if (range === 'year') {
+    rangeLabel = '年ごと';
+  } else if (range === 'month') {
+    if (selectedMonth) {
+      const [y, m] = selectedMonth.split('-').map(Number);
+      rangeLabel = `${y}年${m + 1}月`;
+    } else {
+      rangeLabel = '月ごと（全期間）';
+    }
+  } else {
+    rangeLabel = selectedDay ? formatBusinessDayKey(selectedDay) : '累計（全期間）';
+  }
 
   return (
     <div className="daily-page">
@@ -137,7 +162,7 @@ export default function Daily() {
         </div>
         <div className="daily-summary-stats">
           <div className="daily-stat-box">
-            <div className="daily-stat-num">{dailyStats.length}</div>
+            <div className="daily-stat-num">{summarySource.length}</div>
             <div className="daily-stat-label">営業日数</div>
           </div>
           <div className="daily-stat-box">
@@ -163,11 +188,27 @@ export default function Daily() {
       </div>
 
       {range === 'month' && (
-        <div className="daily-list">
+        <>
+          <div className="daily-picker">
+            <span className="daily-picker-label">月を選択</span>
+            <select
+              className="daily-picker-select"
+              value={selectedMonth}
+              onChange={e => setSelectedMonth(e.target.value)}
+            >
+              <option value="">すべて</option>
+              {monthlyStats.map(m => (
+                <option key={m.key} value={m.key}>{m.year}年{m.month + 1}月</option>
+              ))}
+            </select>
+          </div>
+          <div className="daily-list">
           {monthlyStats.length === 0 ? (
             <div className="daily-empty">履歴がありません</div>
           ) : (
-            monthlyStats.map(m => {
+            monthlyStats
+              .filter(m => !selectedMonth || m.key === selectedMonth)
+              .map(m => {
               const isOpen = !!expanded[`m:${m.key}`];
               const avg = m.pax > 0 ? Math.floor(m.sales / m.pax) : 0;
               return (
@@ -209,7 +250,8 @@ export default function Daily() {
               );
             })
           )}
-        </div>
+          </div>
+        </>
       )}
 
       {range === 'year' && (
@@ -260,11 +302,26 @@ export default function Daily() {
       )}
 
       {range === 'all' && (
-      <div className="daily-list">
+      <>
+        <div className="daily-picker">
+          <span className="daily-picker-label">日を選択</span>
+          <input
+            type="date"
+            className="daily-picker-input"
+            value={selectedDay ? dayKeyToInputValue(selectedDay) : ''}
+            onChange={e => setSelectedDay(e.target.value ? inputValueToDayKey(e.target.value) : '')}
+          />
+          {selectedDay && (
+            <span className="daily-picker-clear" onClick={() => setSelectedDay('')}>×</span>
+          )}
+        </div>
+        <div className="daily-list">
         {dailyStats.length === 0 ? (
           <div className="daily-empty">履歴がありません</div>
         ) : (
-          dailyStats.map(d => {
+          dailyStats
+            .filter(d => !selectedDay || d.key === selectedDay)
+            .map(d => {
             const isOpen = !!expanded[d.key];
             const avg = d.pax > 0 ? Math.floor(d.sales / d.pax) : 0;
             const ranking = Object.values(d.items)
@@ -335,7 +392,8 @@ export default function Daily() {
             );
           })
         )}
-      </div>
+        </div>
+      </>
       )}
 
       {modal && (
