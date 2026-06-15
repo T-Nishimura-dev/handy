@@ -16,14 +16,16 @@ export function OrderProvider({ children }) {
   const [history, setHistory]         = useState(() => loadLocal('handy_history', []));
   const [menuItems, setMenuItems]     = useState(() => loadLocal('handy_menu', MENU_ITEMS));
   const [categories, setCategories]   = useState(() => loadLocal('handy_categories', CATEGORIES));
+  const [reservations, setReservations] = useState(() => loadLocal('handy_reservations', {}));
   const [loading, setLoading]         = useState(!IS_LOCAL);
 
   useEffect(() => {
     if (IS_LOCAL) return;
 
-    const tablesRef   = ref(db, 'tables');
-    const historyRef  = ref(db, 'history');
-    const menuRef     = ref(db, 'menu');
+    const tablesRef       = ref(db, 'tables');
+    const historyRef      = ref(db, 'history');
+    const menuRef         = ref(db, 'menu');
+    const reservationsRef = ref(db, 'reservations');
 
     onValue(tablesRef, (snapshot) => {
       const data = snapshot.val() || {};
@@ -58,10 +60,17 @@ export function OrderProvider({ children }) {
       }
     });
 
+    onValue(reservationsRef, (snapshot) => {
+      const data = snapshot.val() || {};
+      setReservations(data);
+      saveLocal('handy_reservations', data);
+    });
+
     return () => {
       off(tablesRef);
       off(historyRef);
       off(menuRef);
+      off(reservationsRef);
     };
   }, []);
 
@@ -185,6 +194,47 @@ export function OrderProvider({ children }) {
     await set(ref(db, 'menu'), { items, categories: cats });
   };
 
+  // 予約 CRUD
+  const addReservation = async (data) => {
+    if (IS_LOCAL) {
+      const id = String(Date.now());
+      setReservations(prev => {
+        const next = { ...prev, [id]: { ...data, id } };
+        saveLocal('handy_reservations', next);
+        return next;
+      });
+      return;
+    }
+    const newRef = push(ref(db, 'reservations'));
+    await set(newRef, { ...data, id: newRef.key });
+  };
+
+  const updateReservation = async (id, data) => {
+    if (IS_LOCAL) {
+      setReservations(prev => {
+        if (!prev[id]) return prev;
+        const next = { ...prev, [id]: { ...prev[id], ...data, id } };
+        saveLocal('handy_reservations', next);
+        return next;
+      });
+      return;
+    }
+    await set(ref(db, `reservations/${id}`), { ...data, id });
+  };
+
+  const deleteReservation = async (id) => {
+    if (IS_LOCAL) {
+      setReservations(prev => {
+        const next = { ...prev };
+        delete next[id];
+        saveLocal('handy_reservations', next);
+        return next;
+      });
+      return;
+    }
+    await remove(ref(db, `reservations/${id}`));
+  };
+
   const getTotal = (tableNum) => {
     const order = tableOrders[tableNum];
     if (!order) return 0;
@@ -193,8 +243,9 @@ export function OrderProvider({ children }) {
 
   return (
     <OrderContext.Provider value={{
-      tableOrders, history, menuItems, categories,
-      addOrder, checkout, removeOrderItem, getTotal, loading, fetchAll, saveMenu
+      tableOrders, history, menuItems, categories, reservations,
+      addOrder, checkout, removeOrderItem, getTotal, loading, fetchAll, saveMenu,
+      addReservation, updateReservation, deleteReservation
     }}>
       {children}
     </OrderContext.Provider>

@@ -8,6 +8,7 @@ const tabs = [
   { path: '/ticket', icon: '🧾', label: '伝票' },
   { path: '/sales',  icon: '📊', label: '売上' },
   { path: '/cash',   icon: '💴', label: '検銭' },
+  { path: '/reservations', icon: '📅', label: '予約' },
 ];
 
 export default function Layout({ children }) {

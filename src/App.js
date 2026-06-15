@@ -8,6 +8,7 @@ import Order from './pages/Order';
 import Ticket from './pages/Ticket';
 import Sales from './pages/Sales';
 import Cash from './pages/Cash';
+import Reservations from './pages/Reservations';
 import Admin from './pages/Admin';
 
 function AppRoutes() {
@@ -24,6 +25,7 @@ function AppRoutes() {
             <Route path="/ticket" element={<Ticket />} />
             <Route path="/sales" element={<Sales />} />
             <Route path="/cash" element={<Cash />} />
+            <Route path="/reservations" element={<Reservations />} />
             <Route path="/admin" element={<Admin />} />
             <Route path="*" element={<Navigate to="/" />} />
           </Routes>

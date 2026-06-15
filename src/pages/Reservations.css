@@ -1,0 +1,265 @@
+.resv-page {
+  padding: 10px;
+  padding-bottom: 80px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.resv-day-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: #242018;
+  border: 1px solid #2e2a22;
+  border-radius: 10px;
+  padding: 8px 10px;
+  position: sticky;
+  top: 0;
+  z-index: 5;
+}
+
+.resv-day-btn {
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  background: rgba(255,255,255,0.04);
+  color: #e8b45a;
+  font-size: 18px;
+  cursor: pointer;
+  user-select: none;
+}
+
+.resv-day-btn:active { background: rgba(232,180,90,0.2); }
+
+.resv-day-label {
+  flex: 1;
+  text-align: center;
+  font-family: 'Zen Kaku Gothic New', sans-serif;
+  font-weight: 700;
+  font-size: 16px;
+  color: #f0ead8;
+}
+
+.resv-day-today {
+  padding: 6px 12px;
+  border-radius: 6px;
+  background: #d4922a;
+  color: #1a1815;
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+  user-select: none;
+}
+
+.resv-grid-wrap {
+  overflow-x: auto;
+  background: #1a1815;
+  border: 1px solid #2e2a22;
+  border-radius: 10px;
+  -webkit-overflow-scrolling: touch;
+}
+
+.resv-grid {
+  display: grid;
+  /* grid-template-columns は JS から設定 */
+  min-width: max-content;
+}
+
+.resv-corner {
+  background: #242018;
+  color: #9a9080;
+  font-size: 10px;
+  padding: 8px 4px;
+  border-bottom: 1px solid #2e2a22;
+  border-right: 1px solid #2e2a22;
+  position: sticky;
+  left: 0;
+  z-index: 2;
+  text-align: center;
+  letter-spacing: 0.05em;
+}
+
+.resv-time-head {
+  background: #242018;
+  color: #c9b896;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 8px 0;
+  text-align: center;
+  border-bottom: 1px solid #2e2a22;
+  border-right: 1px solid rgba(46,42,34,0.5);
+}
+
+.resv-table-head {
+  background: #242018;
+  color: #e8b45a;
+  font-family: 'Zen Kaku Gothic New', sans-serif;
+  font-weight: 900;
+  font-size: 16px;
+  padding: 10px 0;
+  text-align: center;
+  border-bottom: 1px solid #2e2a22;
+  border-right: 1px solid #2e2a22;
+  position: sticky;
+  left: 0;
+  z-index: 2;
+}
+
+.resv-cell {
+  height: 48px;
+  border-bottom: 1px solid rgba(46,42,34,0.5);
+  border-right: 1px solid rgba(46,42,34,0.5);
+  cursor: pointer;
+  position: relative;
+}
+
+.resv-cell.empty {
+  background: #1a1815;
+}
+
+.resv-cell.empty:active {
+  background: rgba(232,180,90,0.08);
+}
+
+.resv-cell.filled {
+  background: rgba(74,156,106,0.25);
+  border-right: 1px solid rgba(74,156,106,0.35);
+}
+
+.resv-cell.filled.start {
+  background: #4a9c6a;
+  overflow: hidden;
+}
+
+.resv-cell-content {
+  padding: 4px 6px;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  white-space: nowrap;
+}
+
+.resv-cell-name {
+  color: #fff;
+  font-size: 11px;
+  font-weight: 700;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.resv-cell-sub {
+  color: rgba(255,255,255,0.8);
+  font-size: 9px;
+  margin-top: 2px;
+}
+
+/* モーダル */
+.resv-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 50;
+  padding: 16px;
+}
+
+.resv-modal {
+  background: #242018;
+  border: 1px solid #3a342a;
+  border-radius: 14px;
+  padding: 20px;
+  width: 100%;
+  max-width: 360px;
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+.resv-modal-title {
+  font-family: 'Zen Kaku Gothic New', sans-serif;
+  font-weight: 700;
+  font-size: 16px;
+  color: #e8b45a;
+  margin-bottom: 14px;
+  letter-spacing: 0.05em;
+}
+
+.resv-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 12px;
+}
+
+.resv-field span {
+  font-size: 11px;
+  color: #9a9080;
+  letter-spacing: 0.05em;
+}
+
+.resv-field input,
+.resv-field select {
+  background: #1a1815;
+  border: 1px solid #3a342a;
+  border-radius: 8px;
+  padding: 10px 12px;
+  color: #f0ead8;
+  font-size: 14px;
+  font-family: inherit;
+  -moz-appearance: textfield;
+}
+
+.resv-field input::-webkit-outer-spin-button,
+.resv-field input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.resv-field input:focus,
+.resv-field select:focus {
+  outline: none;
+  border-color: #d4922a;
+}
+
+.resv-modal-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 16px;
+}
+
+.btn-resv-cancel,
+.btn-resv-save,
+.btn-resv-delete {
+  flex: 1;
+  padding: 11px;
+  border-radius: 8px;
+  text-align: center;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  cursor: pointer;
+  user-select: none;
+}
+
+.btn-resv-cancel {
+  background: rgba(255,255,255,0.04);
+  color: #c9b896;
+  border: 1px solid #3a342a;
+}
+
+.btn-resv-save {
+  background: #4a9c6a;
+  color: #fff;
+}
+
+.btn-resv-delete {
+  background: rgba(201,90,58,0.15);
+  color: #c95a3a;
+  border: 1px solid #c95a3a;
+}
