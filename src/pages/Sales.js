@@ -1,4 +1,5 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useOrders } from '../hooks/useOrders';
 import './Sales.css';
 
@@ -16,6 +17,7 @@ function getBusinessDay(date) {
 
 export default function Sales() {
   const { history } = useOrders();
+  const navigate = useNavigate();
 
   // 本日の履歴（午前6時区切り）
   const todayKey = getBusinessDay(new Date());
@@ -43,6 +45,10 @@ export default function Sales() {
 
   return (
     <div className="sales-page">
+
+      <div className="sales-nav-btn" onClick={() => navigate('/daily')}>
+        📈 売上管理（過去履歴・手動登録）
+      </div>
 
       {/* 本日サマリ */}
       <div className="today-card">

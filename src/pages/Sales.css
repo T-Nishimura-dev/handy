@@ -6,6 +6,24 @@
   gap: 12px;
 }
 
+.sales-nav-btn {
+  padding: 12px;
+  border-radius: 10px;
+  background: #242018;
+  border: 1px solid rgba(212,146,42,0.4);
+  color: #e8b45a;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-align: center;
+  cursor: pointer;
+  user-select: none;
+}
+
+.sales-nav-btn:active {
+  background: rgba(232,180,90,0.08);
+}
+
 .today-card {
   background: #242018;
   border: 1px solid rgba(212,146,42,0.3);
