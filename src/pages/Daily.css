@@ -1,0 +1,195 @@
+.daily-page {
+  padding: 14px;
+  padding-bottom: 100px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.daily-summary-card {
+  background: #242018;
+  border: 1px solid rgba(212,146,42,0.3);
+  border-radius: 14px;
+  padding: 16px;
+}
+
+.daily-summary-label {
+  font-size: 10px;
+  letter-spacing: 0.15em;
+  color: #d4922a;
+  margin-bottom: 8px;
+  text-transform: uppercase;
+}
+
+.daily-summary-main {
+  display: flex;
+  align-items: flex-end;
+  gap: 4px;
+  margin-bottom: 14px;
+}
+
+.daily-summary-yen {
+  font-size: 16px;
+  color: #e8b45a;
+  margin-bottom: 6px;
+}
+
+.daily-summary-amount {
+  font-family: 'Zen Kaku Gothic New', sans-serif;
+  font-weight: 900;
+  font-size: 34px;
+  color: #e8b45a;
+  line-height: 1;
+}
+
+.daily-summary-stats {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 6px;
+}
+
+.daily-stat-box {
+  background: rgba(255,255,255,0.03);
+  border-radius: 8px;
+  padding: 8px 4px;
+  text-align: center;
+}
+
+.daily-stat-num {
+  font-family: 'Zen Kaku Gothic New', sans-serif;
+  font-weight: 900;
+  font-size: 14px;
+  color: #f0ead8;
+  white-space: nowrap;
+}
+
+.daily-stat-label {
+  font-size: 9px;
+  color: #9a9080;
+  margin-top: 2px;
+  letter-spacing: 0.05em;
+}
+
+.daily-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.daily-empty {
+  text-align: center;
+  color: #9a9080;
+  font-size: 12px;
+  padding: 40px 0;
+}
+
+.daily-card {
+  background: #242018;
+  border: 1px solid #2e2a22;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.daily-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 14px;
+  cursor: pointer;
+  user-select: none;
+}
+
+.daily-card-header:active {
+  background: rgba(255,255,255,0.02);
+}
+
+.daily-card-left { min-width: 0; }
+
+.daily-card-date {
+  font-family: 'Zen Kaku Gothic New', sans-serif;
+  font-weight: 700;
+  font-size: 14px;
+  color: #f0ead8;
+}
+
+.daily-card-sub {
+  font-size: 10px;
+  color: #9a9080;
+  margin-top: 3px;
+}
+
+.daily-card-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.daily-card-amount {
+  font-family: 'Zen Kaku Gothic New', sans-serif;
+  font-weight: 900;
+  font-size: 18px;
+  color: #e8b45a;
+}
+
+.daily-card-toggle {
+  font-size: 10px;
+  color: #9a9080;
+  width: 14px;
+  text-align: center;
+}
+
+.daily-card-body {
+  padding: 10px 14px 14px;
+  border-top: 1px solid #2e2a22;
+  background: rgba(0,0,0,0.15);
+}
+
+.daily-card-section-title {
+  font-size: 10px;
+  color: #d4922a;
+  letter-spacing: 0.1em;
+  margin-bottom: 8px;
+  text-transform: uppercase;
+}
+
+.daily-rank-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 0;
+  border-bottom: 1px dashed rgba(46,42,34,0.6);
+  font-size: 12px;
+}
+
+.daily-rank-row:last-child {
+  border-bottom: none;
+}
+
+.daily-rank-idx {
+  width: 18px;
+  text-align: center;
+  color: #d4922a;
+  font-weight: 700;
+}
+
+.daily-rank-name {
+  flex: 1;
+  color: #f0ead8;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.daily-rank-qty {
+  color: #9a9080;
+  font-size: 11px;
+  white-space: nowrap;
+}
+
+.daily-rank-total {
+  color: #e8b45a;
+  font-weight: 600;
+  white-space: nowrap;
+  min-width: 70px;
+  text-align: right;
+}
