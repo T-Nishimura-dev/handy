@@ -113,17 +113,13 @@
   color: #c9b896;
   font-size: 11px;
   font-weight: 600;
-  padding: 0 4px;
+  padding: 8px 0;
   text-align: center;
-  border-bottom: 1px solid rgba(46,42,34,0.5);
-  border-right: 1px solid #2e2a22;
+  border-bottom: 1px solid #2e2a22;
+  border-right: 1px solid rgba(46,42,34,0.5);
   position: sticky;
-  left: 0;
+  top: 0;
   z-index: 2;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 44px;
 }
 
 .resv-table-head {
@@ -135,14 +131,14 @@
   padding: 10px 0;
   text-align: center;
   border-bottom: 1px solid #2e2a22;
-  border-right: 1px solid rgba(46,42,34,0.5);
+  border-right: 1px solid #2e2a22;
   position: sticky;
-  top: 0;
+  left: 0;
   z-index: 2;
 }
 
 .resv-cell {
-  min-height: 44px;
+  height: 48px;
   border-bottom: 1px solid rgba(46,42,34,0.5);
   border-right: 1px solid rgba(46,42,34,0.5);
   cursor: pointer;
@@ -159,7 +155,7 @@
 
 .resv-cell.filled {
   background: rgba(74,156,106,0.25);
-  border-bottom: 1px solid rgba(74,156,106,0.35);
+  border-right: 1px solid rgba(74,156,106,0.35);
 }
 
 .resv-cell.filled.start {

@@ -128,22 +128,22 @@ export default function Reservations() {
       </div>
 
       <div className="resv-grid-wrap">
-        <div className="resv-grid" style={{ gridTemplateColumns: `56px repeat(${TABLE_COUNT}, 1fr)` }}>
-          <div className="resv-corner">時間</div>
-          {Array.from({ length: TABLE_COUNT }, (_, i) => i + 1).map(tableNum => (
-            <div key={tableNum} className="resv-table-head">{tableNum}</div>
+        <div className="resv-grid" style={{ gridTemplateColumns: `60px repeat(${SLOT_MIN_FROM_18.length}, 56px)` }}>
+          <div className="resv-corner">テーブル</div>
+          {SLOT_MIN_FROM_18.map(s => (
+            <div key={s} className="resv-time-head">{slotLabel(s)}</div>
           ))}
 
-          {SLOT_MIN_FROM_18.map(s => (
-            <React.Fragment key={s}>
-              <div className="resv-time-head">{slotLabel(s)}</div>
-              {Array.from({ length: TABLE_COUNT }, (_, i) => i + 1).map(tableNum => {
+          {Array.from({ length: TABLE_COUNT }, (_, i) => i + 1).map(tableNum => (
+            <React.Fragment key={tableNum}>
+              <div className="resv-table-head">{tableNum}</div>
+              {SLOT_MIN_FROM_18.map(s => {
                 const r = cellMap[tableNum][s];
                 if (r) {
                   const isStart = r.startMin === s;
                   return (
                     <div
-                      key={tableNum}
+                      key={s}
                       className={`resv-cell filled ${isStart ? 'start' : ''}`}
                       onClick={() => openEdit(r)}
                     >
@@ -158,7 +158,7 @@ export default function Reservations() {
                 }
                 return (
                   <div
-                    key={tableNum}
+                    key={s}
                     className="resv-cell empty"
                     onClick={() => openNew(tableNum, s)}
                   />
