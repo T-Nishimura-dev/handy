@@ -36,6 +36,7 @@ export default function Daily() {
   const { history, manualDaily, saveManualDaily, deleteManualDaily } = useOrders();
   const [expanded, setExpanded] = useState({});
   const [modal, setModal] = useState(null); // { mode: 'new'|'edit', dayKey, record? }
+  const [range, setRange] = useState('all'); // 'month' | 'year' | 'all'
 
   const dailyStats = useMemo(() => {
     const map = {};
@@ -80,10 +81,56 @@ export default function Daily() {
   const grandCount = dailyStats.reduce((s, d) => s + d.count, 0);
   const grandAvg = grandPax > 0 ? Math.floor(grandTotal / grandPax) : 0;
 
+  // 月ごと集計（key: "YYYY-M"、月は0始まり）
+  const monthlyStats = useMemo(() => {
+    const map = {};
+    dailyStats.forEach(d => {
+      const [y, m] = d.key.split('-').map(Number);
+      const mk = `${y}-${m}`;
+      if (!map[mk]) map[mk] = { key: mk, year: y, month: m, sales: 0, pax: 0, count: 0, days: [] };
+      map[mk].sales += d.sales;
+      map[mk].pax += d.pax;
+      map[mk].count += d.count;
+      map[mk].days.push(d);
+    });
+    return Object.values(map).sort((a, b) => (b.year - a.year) || (b.month - a.month));
+  }, [dailyStats]);
+
+  // 年ごと集計
+  const yearlyStats = useMemo(() => {
+    const map = {};
+    monthlyStats.forEach(m => {
+      if (!map[m.year]) map[m.year] = { key: String(m.year), year: m.year, sales: 0, pax: 0, count: 0, months: [] };
+      map[m.year].sales += m.sales;
+      map[m.year].pax += m.pax;
+      map[m.year].count += m.count;
+      map[m.year].months.push(m);
+    });
+    return Object.values(map).sort((a, b) => b.year - a.year);
+  }, [monthlyStats]);
+
+  const rangeLabel = range === 'month' ? '月ごと' : range === 'year' ? '年ごと' : '累計（全期間）';
+
   return (
     <div className="daily-page">
+      <div className="daily-range-tabs">
+        {[
+          { v: 'month', label: '月' },
+          { v: 'year', label: '年' },
+          { v: 'all', label: '累計' },
+        ].map(t => (
+          <div
+            key={t.v}
+            className={`daily-range-tab ${range === t.v ? 'active' : ''}`}
+            onClick={() => setRange(t.v)}
+          >
+            {t.label}
+          </div>
+        ))}
+      </div>
+
       <div className="daily-summary-card">
-        <div className="daily-summary-label">📊 集計（全期間）</div>
+        <div className="daily-summary-label">📊 集計（{rangeLabel}）</div>
         <div className="daily-summary-main">
           <span className="daily-summary-yen">¥</span>
           <span className="daily-summary-amount">{grandTotal.toLocaleString()}</span>
@@ -115,6 +162,104 @@ export default function Daily() {
         ＋ 過去の売上を手動登録
       </div>
 
+      {range === 'month' && (
+        <div className="daily-list">
+          {monthlyStats.length === 0 ? (
+            <div className="daily-empty">履歴がありません</div>
+          ) : (
+            monthlyStats.map(m => {
+              const isOpen = !!expanded[`m:${m.key}`];
+              const avg = m.pax > 0 ? Math.floor(m.sales / m.pax) : 0;
+              return (
+                <div key={m.key} className="daily-card">
+                  <div
+                    className="daily-card-header"
+                    onClick={() => setExpanded(prev => ({ ...prev, [`m:${m.key}`]: !prev[`m:${m.key}`] }))}
+                  >
+                    <div className="daily-card-left">
+                      <div className="daily-card-date">{m.year}年{m.month + 1}月</div>
+                      <div className="daily-card-sub">
+                        {m.days.length}営業日 · {m.pax}名 · {m.count}会計 · 客単価 ¥{avg.toLocaleString()}
+                      </div>
+                    </div>
+                    <div className="daily-card-right">
+                      <div className="daily-card-amount">¥{m.sales.toLocaleString()}</div>
+                      <div className="daily-card-toggle">{isOpen ? '▲' : '▼'}</div>
+                    </div>
+                  </div>
+                  {isOpen && (
+                    <div className="daily-card-body">
+                      <div className="daily-card-section-title">日別内訳</div>
+                      {m.days.map(d => {
+                        const dAvg = d.pax > 0 ? Math.floor(d.sales / d.pax) : 0;
+                        return (
+                          <div key={d.key} className="daily-rank-row">
+                            <span className="daily-rank-name">
+                              {formatBusinessDayKey(d.key)}
+                              {d.manual && <span className="daily-manual-badge">手動</span>}
+                            </span>
+                            <span className="daily-rank-qty">{d.pax}名 · ¥{dAvg.toLocaleString()}</span>
+                            <span className="daily-rank-total">¥{d.sales.toLocaleString()}</span>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  )}
+                </div>
+              );
+            })
+          )}
+        </div>
+      )}
+
+      {range === 'year' && (
+        <div className="daily-list">
+          {yearlyStats.length === 0 ? (
+            <div className="daily-empty">履歴がありません</div>
+          ) : (
+            yearlyStats.map(y => {
+              const isOpen = !!expanded[`y:${y.key}`];
+              const avg = y.pax > 0 ? Math.floor(y.sales / y.pax) : 0;
+              return (
+                <div key={y.key} className="daily-card">
+                  <div
+                    className="daily-card-header"
+                    onClick={() => setExpanded(prev => ({ ...prev, [`y:${y.key}`]: !prev[`y:${y.key}`] }))}
+                  >
+                    <div className="daily-card-left">
+                      <div className="daily-card-date">{y.year}年</div>
+                      <div className="daily-card-sub">
+                        {y.months.length}ヶ月 · {y.pax}名 · {y.count}会計 · 客単価 ¥{avg.toLocaleString()}
+                      </div>
+                    </div>
+                    <div className="daily-card-right">
+                      <div className="daily-card-amount">¥{y.sales.toLocaleString()}</div>
+                      <div className="daily-card-toggle">{isOpen ? '▲' : '▼'}</div>
+                    </div>
+                  </div>
+                  {isOpen && (
+                    <div className="daily-card-body">
+                      <div className="daily-card-section-title">月別内訳</div>
+                      {y.months.map(m => {
+                        const mAvg = m.pax > 0 ? Math.floor(m.sales / m.pax) : 0;
+                        return (
+                          <div key={m.key} className="daily-rank-row">
+                            <span className="daily-rank-name">{m.month + 1}月</span>
+                            <span className="daily-rank-qty">{m.pax}名 · ¥{mAvg.toLocaleString()}</span>
+                            <span className="daily-rank-total">¥{m.sales.toLocaleString()}</span>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  )}
+                </div>
+              );
+            })
+          )}
+        </div>
+      )}
+
+      {range === 'all' && (
       <div className="daily-list">
         {dailyStats.length === 0 ? (
           <div className="daily-empty">履歴がありません</div>
@@ -191,6 +336,7 @@ export default function Daily() {
           })
         )}
       </div>
+      )}
 
       {modal && (
         <ManualDailyModal
