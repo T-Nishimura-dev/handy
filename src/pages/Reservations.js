@@ -30,6 +30,18 @@ function businessDayKeyToDate18(key) {
   return new Date(y, m, d, 18, 0, 0);
 }
 
+// 営業日キー → "YYYY-MM-DD"（<input type="date"> 用）
+function businessDayKeyToInputValue(key) {
+  const d = businessDayKeyToDate18(key);
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+}
+
+// "YYYY-MM-DD" → 営業日キー "YYYY-M-D"
+function inputValueToBusinessDayKey(value) {
+  const [y, m, d] = value.split('-').map(Number);
+  return `${y}-${m - 1}-${d}`;
+}
+
 // 営業日キーを ±days 移動
 function shiftBusinessDay(key, days) {
   const base = businessDayKeyToDate18(key);
@@ -95,7 +107,17 @@ export default function Reservations() {
     <div className="resv-page">
       <div className="resv-day-bar">
         <div className="resv-day-btn" onClick={() => setDayKey(shiftBusinessDay(dayKey, -1))}>‹</div>
-        <div className="resv-day-label">{formatBusinessDay(dayKey)}</div>
+        <label className="resv-day-label">
+          <span>{formatBusinessDay(dayKey)} 📅</span>
+          <input
+            type="date"
+            className="resv-day-input"
+            value={businessDayKeyToInputValue(dayKey)}
+            onChange={e => {
+              if (e.target.value) setDayKey(inputValueToBusinessDayKey(e.target.value));
+            }}
+          />
+        </label>
         <div className="resv-day-btn" onClick={() => setDayKey(shiftBusinessDay(dayKey, 1))}>›</div>
         <div
           className="resv-day-today"
