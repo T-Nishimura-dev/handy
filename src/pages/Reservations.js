@@ -8,6 +8,7 @@ const SLOT_MIN_FROM_18 = []; // 各スロットの「18時を0分とした分」
 for (let i = 0; i <= 16; i++) SLOT_MIN_FROM_18.push(i * 30);
 
 const STAY_OPTIONS = [
+  { value: 30,  label: '30分' },
   { value: 60,  label: '1時間' },
   { value: 90,  label: '1.5時間' },
   { value: 120, label: '2時間' },
@@ -105,22 +106,22 @@ export default function Reservations() {
       </div>
 
       <div className="resv-grid-wrap">
-        <div className="resv-grid" style={{ gridTemplateColumns: `60px repeat(${SLOT_MIN_FROM_18.length}, 56px)` }}>
-          <div className="resv-corner">テーブル</div>
-          {SLOT_MIN_FROM_18.map(s => (
-            <div key={s} className="resv-time-head">{slotLabel(s)}</div>
+        <div className="resv-grid" style={{ gridTemplateColumns: `56px repeat(${TABLE_COUNT}, 1fr)` }}>
+          <div className="resv-corner">時間</div>
+          {Array.from({ length: TABLE_COUNT }, (_, i) => i + 1).map(tableNum => (
+            <div key={tableNum} className="resv-table-head">{tableNum}</div>
           ))}
 
-          {Array.from({ length: TABLE_COUNT }, (_, i) => i + 1).map(tableNum => (
-            <React.Fragment key={tableNum}>
-              <div className="resv-table-head">{tableNum}</div>
-              {SLOT_MIN_FROM_18.map(s => {
+          {SLOT_MIN_FROM_18.map(s => (
+            <React.Fragment key={s}>
+              <div className="resv-time-head">{slotLabel(s)}</div>
+              {Array.from({ length: TABLE_COUNT }, (_, i) => i + 1).map(tableNum => {
                 const r = cellMap[tableNum][s];
                 if (r) {
                   const isStart = r.startMin === s;
                   return (
                     <div
-                      key={s}
+                      key={tableNum}
                       className={`resv-cell filled ${isStart ? 'start' : ''}`}
                       onClick={() => openEdit(r)}
                     >
@@ -135,7 +136,7 @@ export default function Reservations() {
                 }
                 return (
                   <div
-                    key={s}
+                    key={tableNum}
                     className="resv-cell empty"
                     onClick={() => openNew(tableNum, s)}
                   />
